@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>
+body { margin:0; font-family: monospace; font-size:11px; }
+iframe { border: 1px solid #000; display:block; }
+#results div { white-space: pre; }
+</style></head>
+<body>
+<div id="results">pending...</div>
+<div id="frames"></div>
+<script>
+var pages = ['/index.html', '/properties.html', '/property-1332-tricou-st.html', '/property-1334-tricou-st.html', '/about.html', '/contact.html'];
+var widths = [320, 375, 414, 428, 480, 500, 540, 640, 780, 860];
+var framesDiv = document.getElementById('frames');
+var tasks = [];
+pages.forEach(function(p){ widths.forEach(function(w){ tasks.push({p:p, w:w}); }); });
+var loaded = 0;
+var lines = [];
+tasks.forEach(function(t) {
+  var f = document.createElement('iframe');
+  f.style.width = t.w + 'px';
+  f.style.height = '600px';
+  f.src = t.p;
+  f.onload = function() {
+    try {
+      var doc = f.contentDocument;
+      var docEl = doc.documentElement;
+      var overflowEls = [];
+      doc.querySelectorAll('body *').forEach(function(el){
+        if (el.scrollWidth - el.clientWidth > 2) {
+          overflowEls.push(el.tagName + (el.className ? '.' + String(el.className).split(' ').join('.') : '') + '(' + el.scrollWidth + '>' + el.clientWidth + ')');
+        }
+      });
+      var line = 'page=' + t.p + ' w=' + t.w +
+        ' docScrollW=' + docEl.scrollWidth +
+        ' docClientW=' + docEl.clientWidth +
+        ' OVERFLOW=' + (docEl.scrollWidth > docEl.clientWidth ? 'YES' : 'no') +
+        (overflowEls.length ? ' ELEMS=[' + overflowEls.slice(0,5).join(', ') + ']' : '');
+      lines.push({p: t.p, w: t.w, line: line});
+    } catch (e) {
+      lines.push({p: t.p, w: t.w, line: 'page=' + t.p + ' w=' + t.w + ' ERROR=' + e.message});
+    }
+    loaded++;
+    if (loaded === tasks.length) {
+      lines.sort(function(a,b){ return a.p === b.p ? a.w - b.w : a.p.localeCompare(b.p); });
+      document.getElementById('results').textContent = lines.map(function(l){return l.line;}).join('\n');
+    }
+  };
+  framesDiv.appendChild(f);
+});
+</script>
+</body>
+</html>
