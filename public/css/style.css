@@ -208,6 +208,13 @@ a { color: inherit; text-decoration: none; }
   .nav-cta .btn-primary { display: none; }
 }
 
+.brand-short { display: none; }
+
+@media (max-width: 480px) {
+  .brand-full { display: none; }
+  .brand-short { display: inline; }
+}
+
 /* ---------- Hero ---------- */
 
 .hero {
