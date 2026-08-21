@@ -190,6 +190,9 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-700);
   border-bottom: 1px solid var(--line);
 }
+.mobile-panel a:last-child {
+  border-bottom: none;
+}
 .mobile-panel.open { display: block; }
 
 @media (max-width: 860px) {
