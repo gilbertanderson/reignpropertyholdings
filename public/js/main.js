@@ -4,7 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var panel = document.querySelector(".mobile-panel");
   if (toggle && panel) {
     toggle.addEventListener("click", function () {
-      panel.classList.toggle("open");
+      var isOpen = panel.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
     });
   }
 
@@ -21,6 +22,61 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     }
+  }
+
+  // Contact form: submit via fetch to the Pages Function, show inline status
+  var contactForm = document.querySelector("#contact-form");
+  if (contactForm) {
+    var statusEl = contactForm.querySelector("#form-status");
+    var submitBtn = contactForm.querySelector("button[type=submit]");
+
+    var showStatus = function (type, text) {
+      if (!statusEl) return;
+      statusEl.className = "form-status visible " + type;
+      statusEl.textContent = text;
+    };
+
+    contactForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (statusEl) {
+        statusEl.className = "form-status";
+        statusEl.textContent = "";
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending...";
+      }
+
+      var formData = new FormData(contactForm);
+      var payload = {};
+      formData.forEach(function (value, key) { payload[key] = value; });
+
+      fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+        .then(function (res) {
+          return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+        })
+        .then(function (result) {
+          if (result.ok && result.data.ok) {
+            contactForm.reset();
+            showStatus("success", "Thanks! Your message has been sent. We'll be in touch soon.");
+          } else {
+            showStatus("error", (result.data && result.data.error) || "Something went wrong. Please try again or call us directly.");
+          }
+        })
+        .catch(function () {
+          showStatus("error", "Something went wrong. Please try again or call us directly.");
+        })
+        .finally(function () {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Send Message";
+          }
+        });
+    });
   }
 
   // Property gallery: click a thumbnail to swap the main photo

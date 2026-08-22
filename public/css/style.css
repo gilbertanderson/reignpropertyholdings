@@ -715,6 +715,33 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px var(--blue-50);
 }
 
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.form-status {
+  display: none;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  margin: 18px 0;
+}
+.form-status.visible { display: block; }
+.form-status.success {
+  background: #eafaf0;
+  border: 1px solid #b7ebc9;
+  color: #146c3f;
+}
+.form-status.error {
+  background: #fdecec;
+  border: 1px solid #f5c2c2;
+  color: #a12626;
+}
+
 /* ---------- CTA band ---------- */
 
 .cta-band {
