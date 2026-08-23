@@ -24,6 +24,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Contact page: visitors sent here from /apply when a listing has no live
+  // TurboTenant application get a short explanation and a prefilled message.
+  var applyNote = document.querySelector("#apply-note");
+  if (applyNote) {
+    var applyParams = new URLSearchParams(window.location.search);
+    if (applyParams.get("apply")) {
+      applyNote.hidden = false;
+      var messageField = document.querySelector("#message");
+      if (messageField && !messageField.value) {
+        var wanted = applyParams.get("property");
+        messageField.value = wanted
+          ? "I'd like to apply for " + wanted + ". Please let me know the next steps."
+          : "I'd like to apply for one of your rentals. Please let me know the next steps.";
+      }
+    }
+  }
+
   // Contact form: submit via fetch to the Pages Function, show inline status
   var contactForm = document.querySelector("#contact-form");
   if (contactForm) {
