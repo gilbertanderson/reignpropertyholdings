@@ -1,4 +1,4 @@
-const RECIPIENT_EMAIL = "info@reignpropertyholdings.com";
+const RECIPIENT_EMAIL = "admin@reignpropertyholdings.com";
 const RECIPIENT_NAME = "Reign Property Holdings";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
