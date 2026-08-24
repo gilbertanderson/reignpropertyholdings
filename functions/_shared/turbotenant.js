@@ -1,9 +1,10 @@
 // Shared TurboTenant configuration.
 //
 // Reign Property Holdings uses TurboTenant for online rental applications,
-// screening, and the resident portal. The actual TurboTenant URLs are not
-// checked into the repo — they are set as Cloudflare Pages environment
-// variables so listings can be re-pointed without a deploy:
+// screening, and the resident portal. A listing's public TurboTenant URL can
+// be checked in below, and each one can also be set or overridden as a
+// Cloudflare Pages environment variable so it can be re-pointed without a
+// deploy:
 //
 //   TURBOTENANT_APPLY_URL                  Account-wide "Apply Now" link (/apply/start, and fallback)
 //   TURBOTENANT_APPLY_URL_1332_TRICOU_ST   Per-listing application link
@@ -29,6 +30,9 @@ export const LISTINGS = {
     name: "1334 Tricou St",
     envKey: "TURBOTENANT_APPLY_URL_1334_TRICOU_ST",
     page: "/property-1334-tricou-st.html",
+    // Public TurboTenant listing, available September. The env var above
+    // overrides this when the listing moves or is taken down.
+    url: "https://rental.turbotenant.com/p/1332-1334-tricou-st-new-orleans-la-unit-1334/bdeb7acd-242d-4391-8134-e403717fc77f",
   },
 };
 
@@ -51,7 +55,13 @@ export function isTurboTenantUrl(value) {
 // usable is configured, letting the caller fall back to the contact form.
 export function resolveApplyUrl(env, slug) {
   const listing = slug ? LISTINGS[slug] : null;
-  const candidates = [listing && env[listing.envKey], env.TURBOTENANT_APPLY_URL];
+  // Most specific first: this listing's env var, then its checked-in listing
+  // URL, then the account-wide env var.
+  const candidates = [
+    listing && env[listing.envKey],
+    listing && listing.url,
+    env.TURBOTENANT_APPLY_URL,
+  ];
   for (const candidate of candidates) {
     if (isTurboTenantUrl(candidate)) return candidate.toString().trim();
   }

@@ -550,7 +550,7 @@ section { padding: 72px 0; }
 
 .detail-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 380px;
   gap: 48px;
   align-items: start;
   margin-top: 40px;
@@ -673,6 +673,9 @@ section { padding: 72px 0; }
 }
 .sidebar-contact-item > div { min-width: 0; }
 .sidebar-contact-item strong { display: block; font-size: 0.95rem; overflow-wrap: break-word; }
+/* The full email address is the widest thing in the card; give it a slightly
+   smaller size so it stays on one line at every width, phones included. */
+.sidebar-contact-item a[href^="mailto:"] { font-size: 0.88rem; }
 .sidebar-contact-item span { font-size: 0.82rem; color: var(--ink-500); }
 
 .sidebar-card .btn { margin-top: 18px; }
