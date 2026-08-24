@@ -38,6 +38,15 @@ export const LISTINGS = {
     // Open for September.
     available: true,
   },
+  // Owned and managed by StrikeWorks (StrikeWorks Studio, dba StrikeWorks) —
+  // not owned by Reign Property Holdings, which owns 1332 and 1334 Tricou St
+  // above. Shown on the properties and apply pages, labeled accordingly.
+  "508-avenue-e": {
+    name: "508 Avenue E",
+    envKey: "TURBOTENANT_APPLY_URL_508_AVENUE_E",
+    url: "https://rental.turbotenant.com/p/508-avenue-e-marrero-la/387c0b42-c89a-492b-b358-91a2555f4d76",
+    available: true,
+  },
 };
 
 export function isTurboTenantUrl(value) {

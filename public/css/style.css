@@ -884,3 +884,18 @@ input:focus, textarea:focus, select:focus {
 @media (max-width: 520px) {
   .apply-option { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
+
+/* ---------- Listing without photos yet ---------- */
+
+.card-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0b2545, #123a73);
+}
+.card-photo-placeholder .placeholder-text {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
