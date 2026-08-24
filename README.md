@@ -12,10 +12,16 @@ TurboTenant URL can live in `functions/_shared/turbotenant.js`, and every
 listing can also be pointed or re-pointed with an environment variable — no
 deploy needed.
 
-Both listings are checked in. **1334 Tricou St** is open for September and its
-Apply button goes to TurboTenant. **1332 Tricou St** is marked
-`available: false` — its listing URL is recorded, but Apply goes to the contact
-form until that flips to `true`.
+All three checked-in listings are shown on the properties and apply pages.
+**1334 Tricou St** (open September) and **508 Avenue E** send Apply straight to
+TurboTenant. **1332 Tricou St** is marked `available: false` — its listing URL is
+recorded, but Apply goes to the contact form until that flips to `true`.
+
+Reign Property Holdings owns 1332 and 1334 Tricou St. **508 Avenue E, Marrero**
+is owned *and* managed by StrikeWorks — a separate company — and is labeled as
+such everywhere it appears. Day-to-day management of the Tricou St homes is also
+handled by StrikeWorks; the site's copy reflects that RPH owns, StrikeWorks
+manages.
 
 | Route | Goes to |
 | --- | --- |
@@ -34,6 +40,7 @@ Set these in the Cloudflare Pages project (Settings → Environment variables):
 | `TURBOTENANT_APPLY_URL` | no | Fallback application link used when a listing has no link of its own |
 | `TURBOTENANT_APPLY_URL_1332_TRICOU_ST` | no | Application link for 1332 Tricou St — also overrides its `available: false` |
 | `TURBOTENANT_APPLY_URL_1334_TRICOU_ST` | no | Overrides the checked-in link for 1334 Tricou St |
+| `TURBOTENANT_APPLY_URL_508_AVENUE_E` | no | Overrides the checked-in link for 508 Avenue E |
 | `TURBOTENANT_PORTAL_URL` | no | Resident portal link (defaults to `https://rental.turbotenant.com/`) |
 | `SENDGRID_API_KEY` | yes | Sends contact-form submissions |
 
