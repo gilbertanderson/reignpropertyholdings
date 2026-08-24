@@ -44,6 +44,7 @@ export const LISTINGS = {
   "508-avenue-e": {
     name: "508 Avenue E",
     envKey: "TURBOTENANT_APPLY_URL_508_AVENUE_E",
+    page: "/property-508-avenue-e.html",
     url: "https://rental.turbotenant.com/p/508-avenue-e-marrero-la/387c0b42-c89a-492b-b358-91a2555f4d76",
     available: true,
   },
