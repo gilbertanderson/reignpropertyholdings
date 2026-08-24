@@ -2,9 +2,9 @@
 //
 // Reign Property Holdings uses TurboTenant for online rental applications,
 // screening, and the resident portal. A listing's public TurboTenant URL can
-// be checked in below, and each one can also be set or overridden as a
-// Cloudflare Pages environment variable so it can be re-pointed without a
-// deploy:
+// be checked in below — with `available: false` while it isn't taking
+// applications — and each one can also be set or overridden as a Cloudflare
+// Pages environment variable so it can be re-pointed without a deploy:
 //
 //   TURBOTENANT_APPLY_URL                  Account-wide "Apply Now" link (/apply/start, and fallback)
 //   TURBOTENANT_APPLY_URL_1332_TRICOU_ST   Per-listing application link
@@ -25,14 +25,18 @@ export const LISTINGS = {
     name: "1332 Tricou St",
     envKey: "TURBOTENANT_APPLY_URL_1332_TRICOU_ST",
     page: "/property-1332-tricou-st.html",
+    url: "https://rental.turbotenant.com/p/1332-1334-tricou-st-new-orleans-la-unit-1332/11915ba0-3391-4c6f-8baf-d95d9589f1ad",
+    // Not accepting applications yet, so Apply goes to the contact form
+    // instead of the listing. Flip to true when the unit opens up.
+    available: false,
   },
   "1334-tricou-st": {
     name: "1334 Tricou St",
     envKey: "TURBOTENANT_APPLY_URL_1334_TRICOU_ST",
     page: "/property-1334-tricou-st.html",
-    // Public TurboTenant listing, available September. The env var above
-    // overrides this when the listing moves or is taken down.
     url: "https://rental.turbotenant.com/p/1332-1334-tricou-st-new-orleans-la-unit-1334/bdeb7acd-242d-4391-8134-e403717fc77f",
+    // Open for September.
+    available: true,
   },
 };
 
@@ -56,12 +60,17 @@ export function isTurboTenantUrl(value) {
 export function resolveApplyUrl(env, slug) {
   const listing = slug ? LISTINGS[slug] : null;
   // Most specific first: this listing's env var, then its checked-in listing
-  // URL, then the account-wide env var.
-  const candidates = [
-    listing && env[listing.envKey],
-    listing && listing.url,
-    env.TURBOTENANT_APPLY_URL,
-  ];
+  // URL, then the account-wide env var. A listing marked unavailable takes
+  // only its own env var — it shouldn't quietly fall through to a generic
+  // application for a home that isn't open.
+  const candidates =
+    listing && listing.available === false
+      ? [env[listing.envKey]]
+      : [
+          listing && env[listing.envKey],
+          listing && listing.url,
+          env.TURBOTENANT_APPLY_URL,
+        ];
   for (const candidate of candidates) {
     if (isTurboTenantUrl(candidate)) return candidate.toString().trim();
   }
