@@ -175,13 +175,13 @@ fill gaps between leases. Do not let site copy imply nightly or weekly stays.
 
 | Unit | VRBO | Airbnb |
 |---|---|---|
-| 1332 Tricou St (2BR/2BA) | [5063788](https://www.vrbo.com/5063788) | room `832710289760465793` ("Jazz House") — **not linked**, see below |
+| 1332 Tricou St (2BR/2BA) | [5063788](https://www.vrbo.com/5063788) | [832710289760465793](https://www.airbnb.com/rooms/832710289760465793) ("NOLA Jazz House") |
 | 1334 Tricou St (2BR/1BA) | [5063799](https://www.vrbo.com/5063799) | [700851692178654878](https://www.airbnb.com/rooms/700851692178654878) ("Mardi Gras Mamba House") |
 
-1332's Airbnb page currently **404s publicly** because the listing is snoozed while booked,
-so `stays.js` deliberately leaves `airbnb: null` for it — a button to a dead page is worse
-than no button. Its iCal feed still works while hidden. Set the URL once the listing is
-visible again.
+Both units now link both platforms. 1332's Airbnb page had 404'd while the listing was
+snoozed, so it was deliberately left unlinked; it went public again on 2026-08-25 and is
+now wired up (commit `f857254`). If a listing is snoozed again the page will 404 — set
+`airbnb: null` for it rather than shipping a button to a dead page.
 
 **No Airbnb/VRBO API is involved and none is needed.** Availability comes from each
 platform's iCal export, proxied by `functions/api/availability.js` (required: neither
@@ -192,9 +192,9 @@ Still outstanding here:
 - `STAYS_ICAL_*` env vars in Cloudflare Pages (only `1332_AIRBNB` has been tested locally).
 - Confirm 30 nights is the correct published floor — Airbnb doesn't expose the minimum-stay
   setting to an unauthenticated fetch, so it could not be verified independently.
-- Confirm room `832710289760465793` is in fact 1332 and not another unit; it was inferred
-  from the calendar link supplied alongside a question about 1332, and its public page
-  404s so it could not be checked directly.
+- ~~Confirm room `832710289760465793` is 1332.~~ **Confirmed 2026-08-25**: the page is
+  public again and reports 2BR/**2**BA ("NOLA Jazz House"), matching 1332. Bathroom count
+  is what separates it from 1334 (2BR/1BA).
 
 ## 6. What changed this session
 
