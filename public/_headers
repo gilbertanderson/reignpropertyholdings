@@ -1,0 +1,25 @@
+# Cloudflare Pages response headers.
+#
+# CSS and JS are referenced without a version string (css/style.css), so a long
+# max-age means an edit ships but visitors keep the old file until their cache
+# expires. That happened on 2026-08-25: a header fix was live and correct, but
+# style.css was still being served from cache with max-age=14400 (4 hours).
+#
+# max-age=0 + must-revalidate does not mean "don't cache" — the browser keeps
+# the file and revalidates with its ETag, so unchanged files come back as a
+# cheap 304. Correctness over a few bytes on a site this size.
+
+/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Photos get replaced in place under the same filename (e.g. swapping a
+# mislabeled bathroom shot), so they can't cache indefinitely either.
+/images/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/*
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
