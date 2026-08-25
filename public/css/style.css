@@ -206,7 +206,13 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 480px) {
-  .brand > span:not(.brand-mark) { display: none; }
+  /* Narrow screens drop the "Reign" word and the location sub-line, leaving
+     the "R" mark followed by "Property Holdings" — which still reads as the
+     full name. Scoped to the header on purpose: the old unscoped rule also
+     blanked the footer's brand text, leaving a bare "R" down there. */
+  .site-header .brand-first,
+  .site-header .brand-sub { display: none; }
+  .site-header .brand { font-size: 1rem; }
   .brand-mark { width: 38px; height: 38px; font-size: 1.1rem; }
 }
 
