@@ -905,3 +905,28 @@ input:focus, textarea:focus, select:focus {
   font-weight: 600;
   letter-spacing: 0.02em;
 }
+
+/* Furnished-stay block on the Tricou property pages. Visually set apart from
+   the surrounding detail sections so it doesn't read as part of the long-term
+   listing, which is the primary offer. */
+.stays-block {
+  background: var(--blue-50);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+.stays-block h2 { margin-top: 0; }
+.stays-block p:last-of-type { margin-bottom: 0; }
+
+.stays-availability {
+  font-weight: 600;
+}
+
+.stays-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+/* Buttons sit on the tinted panel, so give them a solid ground rather than
+   letting the tint show through. */
+.stays-links .btn-outline { background: #fff; }

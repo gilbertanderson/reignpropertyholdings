@@ -114,4 +114,53 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   });
+
+  // Furnished stays: fill in the next opening from the booking platforms'
+  // iCal feeds, via /api/availability.
+  //
+  // Progressive enhancement on purpose. The line stays hidden unless the API
+  // returns a real date, so an unset feed, a slow platform, or an outage all
+  // render as "no availability line" rather than an empty or broken box. The
+  // booking links above it work regardless.
+  var stayBlocks = document.querySelectorAll("[data-stays]");
+  stayBlocks.forEach(function (block) {
+    var slug = block.getAttribute("data-stays");
+    var line = block.querySelector("[data-stays-availability]");
+    if (!slug || !line || !window.fetch) return;
+
+    fetch("/api/availability?slug=" + encodeURIComponent(slug))
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (!data || !data.available || !data.availableFrom) return;
+
+        // availableFrom is a plain YYYY-MM-DD. Parse and format it as UTC —
+        // letting it go through local time shifts the date by a day for
+        // anyone west of UTC, which is everyone reading this site.
+        var from = new Date(data.availableFrom + "T00:00:00Z");
+        if (isNaN(from.getTime())) return;
+
+        var todayUtc = new Date();
+        todayUtc = Date.UTC(
+          todayUtc.getUTCFullYear(),
+          todayUtc.getUTCMonth(),
+          todayUtc.getUTCDate()
+        );
+
+        var nights = data.minNights || 30;
+        if (from.getTime() <= todayUtc) {
+          line.textContent =
+            "Available now for stays of " + nights + " nights or more.";
+        } else {
+          line.textContent =
+            "Next opening for a " + nights + "-night stay: " +
+            from.toLocaleDateString("en-US", {
+              month: "long", day: "numeric", year: "numeric", timeZone: "UTC"
+            }) + ".";
+        }
+        line.hidden = false;
+      })
+      .catch(function () {
+        /* Leave the line hidden. */
+      });
+  });
 });
