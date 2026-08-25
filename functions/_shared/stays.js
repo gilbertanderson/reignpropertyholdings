@@ -43,13 +43,10 @@ export const STAYS = {
   "1332-tricou-st": {
     name: "1332 Tricou St",
     vrbo: "https://www.vrbo.com/5063788",
-    // The Airbnb listing for this unit (room 832710289760465793, "Jazz
-    // House") is snoozed while it's booked, and its public /rooms/ page
-    // currently 404s — linking it would hand visitors a dead page, which is
-    // worse than showing no Airbnb button at all. Availability still works:
-    // the iCal export below keeps serving while the listing is hidden. Set
-    // this once the listing is publicly visible again.
-    airbnb: null,
+    // "NOLA Jazz House". Confirmed 2026-08-25 as this unit by its 2BR/2BA
+    // specs; the page had been 404ing while the listing was snoozed and is
+    // public again.
+    airbnb: "https://www.airbnb.com/rooms/832710289760465793",
     ical: { vrbo: "STAYS_ICAL_1332_VRBO", airbnb: "STAYS_ICAL_1332_AIRBNB" },
   },
   "1334-tricou-st": {
