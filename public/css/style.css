@@ -206,14 +206,18 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 480px) {
-  /* Narrow screens drop the "Reign" word and the location sub-line, leaving
-     the "R" mark followed by "Property Holdings" — which still reads as the
-     full name. Scoped to the header on purpose: the old unscoped rule also
-     blanked the footer's brand text, leaving a bare "R" down there. */
-  .site-header .brand-first,
+  /* Keep the full "Reign Property Holdings" and drop only the location
+     sub-line. The mark is a logo tile, not an inline letter, so trimming the
+     word "Reign" just reads as "R Property Holdings". Scoped to the header:
+     the original unscoped rule also blanked the footer's brand text. */
   .site-header .brand-sub { display: none; }
-  .site-header .brand { font-size: 1rem; }
-  .brand-mark { width: 38px; height: 38px; font-size: 1.1rem; }
+  .site-header .brand { font-size: 0.95rem; }
+  .brand-mark { width: 34px; height: 34px; font-size: 1rem; }
+}
+
+/* Very narrow phones: let the name wrap rather than overflow the bar. */
+@media (max-width: 360px) {
+  .site-header .brand { font-size: 0.88rem; white-space: normal; }
 }
 
 /* ---------- Hero ---------- */
