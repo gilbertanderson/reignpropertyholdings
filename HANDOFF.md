@@ -113,14 +113,14 @@ valid with 8 well-formed URLs. Treat unverified items with that in mind.
 
 ### High value
 
-- **[VERIFIED] Photo-count badges are wrong.** `properties.html` and `index.html` claim
+- ~~**[VERIFIED] Photo-count badges are wrong.**~~ *Fixed in `4a8fedd`.* `properties.html` and `index.html` claim
   "5 photos" for 1332 and 1334, but each gallery renders only 4 thumbnails. Two images ship
   but are referenced by nothing: `public/images/properties/1332-tricou/kitchen-dining.jpg`
   (1600x1099) and `public/images/properties/1334-tricou/living-room.jpg` (1600x1200).
   **Preferred fix: add them as 5th thumbnails** so the badge becomes true, rather than
   downgrading the badge to 4. Gallery markup pattern is at
   `public/property-1332-tricou-st.html:99-113`.
-- **[VERIFIED] Ownership copy contradicts the rest of the site.** Both Tricou pages say
+- ~~**[VERIFIED] Ownership copy contradicts the rest of the site.**~~ *Fixed in `4a8fedd`.* Both Tricou pages say
   "owned and managed by Reign Property Holdings" (3 occurrences each — meta description, og,
   twitter). Site-wide line is "owned by RPH, **managed by StrikeWorks**"
   (`about.html:125`, `index.html:132`, `properties.html:76`).
@@ -132,7 +132,8 @@ valid with 8 well-formed URLs. Treat unverified items with that in mind.
 - **[UNVERIFIED] `/apply/start` is a dead end.** It resolves only through
   `env.TURBOTENANT_APPLY_URL`, which is set nowhere in the repo, and there is no checked-in
   fallback constant (compare `PORTAL_URL_FALLBACK`). It currently 302s to the contact form.
-- **[UNVERIFIED] `available:false` is invisible in the HTML.** 1332 renders normal "Apply"
+- ~~**[UNVERIFIED] `available:false` is invisible in the HTML.**~~ *Fixed in `4a8fedd` —
+  confirmed true, and 1332's CTAs now reflect it.* 1332 renders normal "Apply"
   buttons on `index.html`, `properties.html`, and `apply.html` that all silently bounce to
   the contact form. No `unavailable`/`coming-soon` badge class exists in `style.css`.
 
@@ -166,7 +167,36 @@ valid with 8 well-formed URLs. Treat unverified items with that in mind.
 
 ---
 
-## 5. What changed this session
+## 5. Furnished stays (Airbnb / VRBO) — shipped
+
+Both Tricou units are listed on VRBO and Airbnb for **30+ night stays** (New Orleans
+restricts residential short-term rentals). Long-term leasing is still the goal; the stays
+fill gaps between leases. Do not let site copy imply nightly or weekly stays.
+
+| Unit | VRBO | Airbnb |
+|---|---|---|
+| 1332 Tricou St (2BR/2BA) | [5063788](https://www.vrbo.com/5063788) | room `832710289760465793` ("Jazz House") — **not linked**, see below |
+| 1334 Tricou St (2BR/1BA) | [5063799](https://www.vrbo.com/5063799) | [700851692178654878](https://www.airbnb.com/rooms/700851692178654878) ("Mardi Gras Mamba House") |
+
+1332's Airbnb page currently **404s publicly** because the listing is snoozed while booked,
+so `stays.js` deliberately leaves `airbnb: null` for it — a button to a dead page is worse
+than no button. Its iCal feed still works while hidden. Set the URL once the listing is
+visible again.
+
+**No Airbnb/VRBO API is involved and none is needed.** Availability comes from each
+platform's iCal export, proxied by `functions/api/availability.js` (required: neither
+platform sends CORS headers). Feed URLs carry calendar access tokens — env vars only,
+never committed. `.dev.vars` is gitignored as of this work; it was not before.
+
+Still outstanding here:
+- `STAYS_ICAL_*` env vars in Cloudflare Pages (only `1332_AIRBNB` has been tested locally).
+- Confirm 30 nights is the correct published floor — Airbnb doesn't expose the minimum-stay
+  setting to an unauthenticated fetch, so it could not be verified independently.
+- Confirm room `832710289760465793` is in fact 1332 and not another unit; it was inferred
+  from the calendar link supplied alongside a question about 1332, and its public page
+  404s so it could not be checked directly.
+
+## 6. What changed this session
 
 | Commit | Change |
 |---|---|
@@ -176,6 +206,8 @@ valid with 8 well-formed URLs. Treat unverified items with that in mind.
 | `9b48bb8` | Added woman-owned (RPH) / veteran-owned (StrikeWorks) designations site-wide |
 | `2e3edea` | Higher-res StrikeWorks logo (320x320, transparent bg) |
 | `9ca6e66` | Compacted property gallery |
+| `5125acf` | This handoff document |
+| `4a8fedd` | Furnished-stays feature + iCal availability API; fixed 1332's dead Apply CTAs, photo-count badges, ownership copy |
 
 Earlier in the session, 508 Avenue E was added as a full property page with 5 photos
 sourced from the owner's own Redfin listing (owner confirmed they hold the rights).
@@ -198,7 +230,7 @@ decision, not an oversight. A stale audit note calls it a gap; it is not.
 
 ---
 
-## 6. Provenance
+## 7. Provenance
 
 Section 1–2 findings came from a multi-agent research workflow where every claimed surface
 was handed to a skeptic agent instructed to refute it, defaulting to "not real" when
