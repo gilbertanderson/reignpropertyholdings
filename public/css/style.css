@@ -534,13 +534,19 @@ section { padding: 72px 0; }
    shrinks the element's WIDTH to preserve the ratio once the height clamps,
    which leaves dead space to the right. A clamped height keeps the photo
    full-bleed at every viewport while capping how tall it can get. */
+/* The hero shows each photo whole, at its own aspect ratio.
+   It used to be a fixed-height box with object-fit: cover, which cropped 36%
+   off the height of every listing photo — rooflines and ceilings got cut and
+   the result looked tighter and softer than the same photo on Zillow. The
+   trade-off accepted here is that the page height shifts a little when
+   switching photos, which is how the listing portals do it too. */
 .gallery-main {
-  height: clamp(240px, 40vw, 480px);
-  overflow: hidden;
   background: var(--bg-alt);
   border-radius: var(--radius);
+  overflow: hidden;
+  line-height: 0;
 }
-.gallery-main img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-main img { width: 100%; height: auto; display: block; }
 
 .gallery-thumbs {
   display: grid;
