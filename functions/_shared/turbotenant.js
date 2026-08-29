@@ -9,6 +9,7 @@
 //   TURBOTENANT_APPLY_URL                  Account-wide "Apply Now" link (/apply/start, and fallback)
 //   TURBOTENANT_APPLY_URL_1332_TRICOU_ST   Per-listing application link
 //   TURBOTENANT_APPLY_URL_1334_TRICOU_ST   Per-listing application link
+//   TURBOTENANT_APPLY_URL_508_AVENUE_E     Per-listing application link
 //   TURBOTENANT_PORTAL_URL                 Resident portal login (optional)
 //
 // Any listing without a configured link falls back to the contact form, so a
@@ -107,6 +108,43 @@ export function redirect(url) {
   });
 }
 
+// Campaign tags added to outbound TurboTenant links so an application can be
+// traced back to this site, and to the page that produced it. Without these an
+// application arrives with no indication it came from the website at all.
+//
+// Only applied to outbound platform links — never to the internal contact-form
+// fallback, which is same-site and would just clutter the URL.
+const UTM_SOURCE = "reignpropertyholdings.com";
+const UTM_MEDIUM = "referral";
+
+// Adds attribution without disturbing an existing query string, and without
+// overwriting tags already present on a configured URL — if someone sets an
+// env var with its own utm_campaign, theirs wins.
+export function withAttribution(rawUrl, { campaign, content } = {}) {
+  let url;
+  try {
+    url = new URL(rawUrl);
+  } catch (err) {
+    // Not parseable: hand back what we were given rather than dropping the
+    // redirect. Callers only reach here with a validated URL anyway.
+    return rawUrl;
+  }
+
+  const tags = {
+    utm_source: UTM_SOURCE,
+    utm_medium: UTM_MEDIUM,
+    utm_campaign: campaign,
+    utm_content: content,
+  };
+
+  for (const [key, value] of Object.entries(tags)) {
+    if (value && !url.searchParams.has(key)) {
+      url.searchParams.set(key, value);
+    }
+  }
+  return url.toString();
+}
+
 // Slug for the account-wide application, i.e. /apply/start. The bare /apply
 // path is the static apply.html page, so the general application lives here.
 export const GENERAL_SLUG = "start";
@@ -123,5 +161,14 @@ export function handleApply(env, rawSlug) {
   }
 
   const applyUrl = resolveApplyUrl(env, slug);
-  return redirect(applyUrl || contactFallbackUrl(slug));
+  if (!applyUrl) return redirect(contactFallbackUrl(slug));
+
+  // utm_content carries the listing slug, so applications are attributable to
+  // a specific home rather than just to the site.
+  return redirect(
+    withAttribution(applyUrl, {
+      campaign: "apply",
+      content: slug || GENERAL_SLUG,
+    })
+  );
 }
