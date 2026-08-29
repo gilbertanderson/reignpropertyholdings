@@ -1,0 +1,12 @@
+{
+  "name": "reignpropertyholdings",
+  "private": true,
+  "scripts": {
+    "build": "wrangler pages functions build --outdir=./dist/worker",
+    "cf:preview": "npm run build && wrangler versions upload",
+    "cf:deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.127.1"
+  }
+}
