@@ -5,3 +5,5 @@ import { redirect, resolvePortalUrl } from "./_shared/turbotenant.js";
 export function onRequestGet(context) {
   return redirect(resolvePortalUrl(context.env));
 }
+
+export const onRequestHead = onRequestGet;

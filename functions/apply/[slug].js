@@ -12,3 +12,7 @@ import { handleApply } from "../_shared/turbotenant.js";
 export function onRequestGet(context) {
   return handleApply(context.env, context.params.slug);
 }
+
+// Link checkers and some crawlers probe with HEAD; without this they get a 405
+// on every Apply link. Same redirect, and the platform drops the (empty) body.
+export const onRequestHead = onRequestGet;
