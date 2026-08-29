@@ -487,6 +487,15 @@ section { padding: 72px 0; }
   margin-bottom: 14px;
 }
 
+/* Furnished-stay availability on a card, filled in by main.js from
+   /api/availability. Hidden until there's a real date to show. */
+.card-availability {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--blue-700);
+}
+
 .card-tags {
   display: flex;
   gap: 8px;
@@ -929,6 +938,9 @@ input:focus, textarea:focus, select:focus {
   background: var(--blue-50);
   border-radius: var(--radius);
   padding: 22px 24px;
+  /* The card CTAs link to #stays and the header is sticky, so leave room for
+     it or the panel lands underneath the nav. */
+  scroll-margin-top: 88px;
 }
 .stays-block h2 { margin-top: 0; }
 .stays-block p:last-of-type { margin-bottom: 0; }

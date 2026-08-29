@@ -122,45 +122,74 @@ document.addEventListener("DOMContentLoaded", function () {
   // returns a real date, so an unset feed, a slow platform, or an outage all
   // render as "no availability line" rather than an empty or broken box. The
   // booking links above it work regardless.
+  //
+  // Blocks carry data-stays="<slug>" and hold a [data-stays-availability]
+  // element. Both the property cards and the detail-page stays panel use this,
+  // so a page can hold two blocks for one home; requests are cached by slug so
+  // that costs one fetch, not two.
   var stayBlocks = document.querySelectorAll("[data-stays]");
+  var availabilityBySlug = {};
+
+  var fetchAvailability = function (slug) {
+    if (!availabilityBySlug[slug]) {
+      availabilityBySlug[slug] = fetch(
+        "/api/availability?slug=" + encodeURIComponent(slug)
+      )
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .catch(function () { return null; });
+    }
+    return availabilityBySlug[slug];
+  };
+
+  // Cards have room for a few words; the detail panel can carry a sentence.
+  var availabilityText = function (data, from, todayUtc, compact) {
+    var nights = data.minNights || 30;
+    var openNow = from.getTime() <= todayUtc;
+    var month = from.toLocaleDateString("en-US", {
+      month: compact ? "short" : "long",
+      day: "numeric",
+      year: compact ? undefined : "numeric",
+      timeZone: "UTC"
+    });
+
+    if (compact) {
+      return openNow
+        ? "Furnished stay available now"
+        : "Furnished stay from " + month;
+    }
+    return openNow
+      ? "Available now for stays of " + nights + " nights or more."
+      : "Next opening for a " + nights + "-night stay: " + month + ".";
+  };
+
   stayBlocks.forEach(function (block) {
     var slug = block.getAttribute("data-stays");
     var line = block.querySelector("[data-stays-availability]");
     if (!slug || !line || !window.fetch) return;
 
-    fetch("/api/availability?slug=" + encodeURIComponent(slug))
-      .then(function (res) { return res.ok ? res.json() : null; })
-      .then(function (data) {
-        if (!data || !data.available || !data.availableFrom) return;
+    fetchAvailability(slug).then(function (data) {
+      if (!data || !data.available || !data.availableFrom) return;
 
-        // availableFrom is a plain YYYY-MM-DD. Parse and format it as UTC —
-        // letting it go through local time shifts the date by a day for
-        // anyone west of UTC, which is everyone reading this site.
-        var from = new Date(data.availableFrom + "T00:00:00Z");
-        if (isNaN(from.getTime())) return;
+      // availableFrom is a plain YYYY-MM-DD. Parse and format it as UTC —
+      // letting it go through local time shifts the date by a day for
+      // anyone west of UTC, which is everyone reading this site.
+      var from = new Date(data.availableFrom + "T00:00:00Z");
+      if (isNaN(from.getTime())) return;
 
-        var todayUtc = new Date();
-        todayUtc = Date.UTC(
-          todayUtc.getUTCFullYear(),
-          todayUtc.getUTCMonth(),
-          todayUtc.getUTCDate()
-        );
+      var todayUtc = new Date();
+      todayUtc = Date.UTC(
+        todayUtc.getUTCFullYear(),
+        todayUtc.getUTCMonth(),
+        todayUtc.getUTCDate()
+      );
 
-        var nights = data.minNights || 30;
-        if (from.getTime() <= todayUtc) {
-          line.textContent =
-            "Available now for stays of " + nights + " nights or more.";
-        } else {
-          line.textContent =
-            "Next opening for a " + nights + "-night stay: " +
-            from.toLocaleDateString("en-US", {
-              month: "long", day: "numeric", year: "numeric", timeZone: "UTC"
-            }) + ".";
-        }
-        line.hidden = false;
-      })
-      .catch(function () {
-        /* Leave the line hidden. */
-      });
+      line.textContent = availabilityText(
+        data,
+        from,
+        todayUtc,
+        line.hasAttribute("data-stays-compact")
+      );
+      line.hidden = false;
+    });
   });
 });
