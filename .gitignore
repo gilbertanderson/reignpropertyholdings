@@ -1,8 +1,14 @@
 .claude/
 .wrangler/
+dist/
+node_modules/
 
 # Local Function env vars. Holds the Airbnb/VRBO iCal URLs, which carry
 # access tokens for the booking calendars — must never be committed.
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+
+.dev.vars*
+.env*
+!.env.example
