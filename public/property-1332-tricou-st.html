@@ -149,7 +149,7 @@
           </ul>
         </div>
 
-        <div class="detail-section stays-block" data-stays="1332-tricou-st">
+        <div class="detail-section stays-block" id="stays" data-stays="1332-tricou-st">
           <h2>Furnished stays, 30 nights and up</h2>
           <p>While this home is between long-term tenants, it&rsquo;s available fully furnished for stays of <strong>30 nights or more</strong> &mdash; a fit for relocations, travel assignments, and temporary housing.</p>
           <p class="stays-availability" data-stays-availability hidden></p>
@@ -162,13 +162,15 @@
 
       <!-- This home is marked available:false in functions/_shared/turbotenant.js,
            so /apply/1332-tricou-st redirects to the contact form rather than an
-           application. The copy below reflects that. When the unit reopens for
-           long-term leasing, flip that flag AND restore the "Apply Now" button
-           here, matching the 1334 page. -->
+           application. The copy below reflects that: the primary button points
+           at the furnished-stay block, which is the offer that actually exists
+           today, and the contact form is the outline button below it. When the
+           unit reopens for long-term leasing, flip that flag AND restore the
+           "Apply Now" button here, matching the 1334 page. -->
       <aside class="sidebar-card">
         <h3>Interested in this property?</h3>
         <p>This home isn&rsquo;t taking long-term applications right now. Get in touch to hear first when it opens up &mdash; or book a furnished stay of 30 nights or more.</p>
-        <a href="contact.html?property=1332+Tricou+St" class="btn btn-primary btn-block">Availability</a>
+        <a href="#stays" class="btn btn-primary btn-block">Book a furnished stay</a>
         <div class="sidebar-contact-item">
           <div class="icon">&#128222;</div>
           <div><strong><a href="tel:5043502120">(504) 350-2120</a></strong><span>Call or text</span></div>

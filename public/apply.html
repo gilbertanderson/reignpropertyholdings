@@ -143,15 +143,21 @@
               </span>
               <span class="apply-option-cta">Apply &rarr;</span>
             </a>
-            <a class="apply-option" href="/apply/start">
+            <!-- Not an /apply/ route: the account-wide application resolves only
+                 through env.TURBOTENANT_APPLY_URL, which is unset and has no
+                 checked-in fallback, so /apply/start lands on the contact form
+                 anyway. Point at the contact form directly and label it for what
+                 it is. Give this the /apply/start link and an "Apply" CTA once an
+                 account-wide TurboTenant application URL exists. -->
+            <a class="apply-option" href="contact.html">
               <span>
-                <strong>General application</strong>
-                Not sure which home yet, or applying for a future opening
+                <strong>No specific home yet</strong>
+                Not sure which home, or asking about a future opening
               </span>
-              <span class="apply-option-cta">Apply &rarr;</span>
+              <span class="apply-option-cta">Get in touch &rarr;</span>
             </a>
           </div>
-          <p class="powered-by">Applications are hosted by <strong>TurboTenant</strong>. These links open TurboTenant's secure application &mdash; if a home isn't accepting applications online right now, you'll land on our contact form instead.</p>
+          <p class="powered-by">Applications are hosted by <strong>TurboTenant</strong>. The Apply links above open TurboTenant's secure application in a new step.</p>
         </div>
 
         <div class="detail-section">
