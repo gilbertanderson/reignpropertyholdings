@@ -11,31 +11,25 @@ import requests
 USER_AGENT = "reignpropertyholdings-image-import/1.0"
 
 
+def unescape_html(html: str) -> str:
+    return html.replace("\\u003d", "=").replace("\\/", "/")
+
+
 def extract_photo_urls(html: str) -> list[str]:
-    patterns = [
-        r"https://lh3\.googleusercontent\.com/[a-zA-Z0-9\-_=/]+",
-        r"https://lh3\.googleusercontent\.com/[^\"'\\s<>]+",
-    ]
+    html = unescape_html(html)
+    candidates = re.findall(r"https://lh3\.googleusercontent\.com/[^\"'\\s<>]+", html)
     seen: set[str] = set()
     urls: list[str] = []
-    for pattern in patterns:
-        for match in re.findall(pattern, html):
-            url = match.replace("\\u003d", "=").split("\\")[0].rstrip(",")
-            if url in seen:
-                continue
-            seen.add(url)
-            urls.append(url)
-    # Album cover duplicates first/last in older scrapers; keep unique only.
+    for url in candidates:
+        url = url.rstrip(",;)")
+        # Skip tiny icons / profile avatars; album photos use /pw/ or long paths.
+        if "/pw/" not in url and len(url) < 120:
+            continue
+        if url in seen:
+            continue
+        seen.add(url)
+        urls.append(url)
     return urls
-
-
-def normalize_download_url(url: str) -> str:
-    """Return a URL suitable for downloading full-size bytes."""
-    if re.search(r"=[ws]\d", url):
-        return url
-    if url.endswith("-no"):
-        return url
-    return f"{url}=w0"
 
 
 def title_from_html(html: str) -> str:
@@ -43,6 +37,24 @@ def title_from_html(html: str) -> str:
     if not match:
         return ""
     return re.sub(r"\s+", " ", match.group(1)).strip()
+
+
+def download_image(session: requests.Session, url: str) -> requests.Response:
+    """Download bytes, trying a few URL shapes Google Photos uses."""
+    attempts = [url]
+    if not re.search(r"=[ws]\d", url):
+        attempts.append(f"{url}=w0")
+        attempts.append(f"{url}=s0")
+    last_response = None
+    for attempt in attempts:
+        response = session.get(attempt, timeout=120)
+        last_response = response
+        if response.status_code == 200 and response.content:
+            return response
+    if last_response is None:
+        raise RuntimeError(f"Failed to download image: {url}")
+    last_response.raise_for_status()
+    return last_response
 
 
 def download_album(album_url: str, out_dir: Path) -> dict:
@@ -62,17 +74,12 @@ def download_album(album_url: str, out_dir: Path) -> dict:
 
     saved: list[dict] = []
     for index, url in enumerate(urls, start=1):
-        fetch_url = normalize_download_url(url)
-        image = session.get(fetch_url, timeout=120)
-        if image.status_code == 400 and fetch_url != url:
-            image = session.get(url, timeout=120)
-        if image.status_code == 400 and "=w0" not in url:
-            image = session.get(f"{url}=s0", timeout=120)
-        image.raise_for_status()
+        image = download_image(session, url)
         ext = "jpg"
-        if "image/webp" in image.headers.get("content-type", ""):
+        content_type = image.headers.get("content-type", "")
+        if "image/webp" in content_type:
             ext = "webp"
-        elif "image/png" in image.headers.get("content-type", ""):
+        elif "image/png" in content_type:
             ext = "png"
         filename = f"{index:02d}.{ext}"
         path = out_dir / filename
