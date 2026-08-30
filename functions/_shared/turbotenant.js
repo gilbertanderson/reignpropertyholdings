@@ -96,9 +96,14 @@ export function resolvePortalUrl(env) {
 
 export function contactFallbackUrl(slug) {
   const listing = slug ? LISTINGS[slug] : null;
-  return listing
-    ? `/contact.html?property=${encodeURIComponent(listing.name)}&apply=1`
-    : "/contact.html?apply=1";
+  if (!listing) return "/contact.html?apply=1";
+
+  // `home` carries the listing's own page so the contact form can offer a way
+  // back. Without it someone bounced off /apply/<slug> lands on a bare form
+  // with no link to the property they were just looking at.
+  const params = new URLSearchParams({ property: listing.name, apply: "1" });
+  if (listing.page) params.set("home", listing.page);
+  return `/contact.html?${params}`;
 }
 
 export function redirect(url) {
