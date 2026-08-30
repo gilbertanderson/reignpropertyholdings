@@ -578,6 +578,12 @@ section { padding: 72px 0; }
 .gallery-main img { width: 100%; height: auto; display: block; }
 
 .gallery-thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gallery-thumb-group {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   gap: 10px;
@@ -596,7 +602,7 @@ section { padding: 72px 0; }
 .gallery-thumbs button.active { border-color: var(--blue-600); }
 
 @media (max-width: 780px) {
-  .gallery-thumbs { grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); }
+  .gallery-thumb-group { grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); }
 }
 
 .detail-layout {
