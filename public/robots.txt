@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
 
+# Redirect endpoints, not content. These 302 straight out to TurboTenant, so
+# crawling them indexes nothing and follows a hop off-site.
+Disallow: /apply/
+Disallow: /portal
+Disallow: /api/
+
 Sitemap: https://reignpropertyholdings.com/sitemap.xml
