@@ -11,6 +11,13 @@ from playwright.sync_api import sync_playwright
 USER_AGENT = "reignpropertyholdings-image-import/1.0"
 
 
+def fullsize_url(url: str) -> str:
+    if "=" in url:
+        base = url.rsplit("=", 1)[0]
+        return f"{base}=w0"
+    return f"{url}=w0"
+
+
 def title_from_html(html: str) -> str:
     match = re.search(r"<title[^>]*>([^<]+)</title>", html, re.I)
     if not match:
@@ -87,13 +94,13 @@ def download_album(album_url: str, out_dir: Path) -> dict:
         context = browser.new_context(user_agent=USER_AGENT)
         saved: list[dict] = []
         for index, url in enumerate(urls, start=1):
-            response = context.request.get(url, timeout=120000)
+            download_url = fullsize_url(url)
+            response = context.request.get(download_url, timeout=120000)
             if response.status != 200 or len(response.body()) < 1000:
-                base = url.split("=", 1)[0]
-                for attempt in [base, f"{base}=w0", f"{base}=s0"]:
+                for attempt in [url, url.rsplit("=", 1)[0]]:
                     response = context.request.get(attempt, timeout=120000)
                     if response.status == 200 and len(response.body()) >= 1000:
-                        url = attempt
+                        download_url = attempt
                         break
             if response.status != 200:
                 browser.close()
@@ -107,7 +114,7 @@ def download_album(album_url: str, out_dir: Path) -> dict:
                 ext = "png"
             filename = f"{index:02d}.{ext}"
             (out_dir / filename).write_bytes(body)
-            saved.append({"file": filename, "source_url": url, "bytes": len(body)})
+            saved.append({"file": filename, "source_url": download_url, "bytes": len(body)})
         browser.close()
 
     metadata = {
