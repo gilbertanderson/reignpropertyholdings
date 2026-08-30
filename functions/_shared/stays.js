@@ -78,7 +78,7 @@ export function stayLinks(slug) {
   const listing = slug ? STAYS[slug] : null;
   if (!listing) return [];
   return [
-    { source: "vrbo", label: "Vrbo", url: listing.vrbo },
+    { source: "vrbo", label: "VRBO", url: listing.vrbo },
     { source: "airbnb", label: "Airbnb", url: listing.airbnb },
   ].filter((link) => isStayUrl(link.url));
 }
