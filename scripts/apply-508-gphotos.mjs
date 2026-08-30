@@ -13,8 +13,6 @@ const BASE = `images/properties/${SLUG}`;
 const MAPPING = [
   { src: '22.jpg', name: 'exterior-front', alt: 'Front exterior of 508 Avenue E' },
   { src: '08.jpg', name: 'exterior-porch', alt: 'Front porch at 508 Avenue E' },
-  { src: '29.jpg', name: 'exterior-back', alt: 'Backyard and driveway at 508 Avenue E' },
-  { src: '30.jpg', name: 'exterior-garage', alt: 'Detached garage at 508 Avenue E' },
   { src: '17.jpg', name: 'interior-hallway', alt: 'Interior hallway at 508 Avenue E' },
   { src: '14.jpg', name: 'living-room', alt: 'Living room at 508 Avenue E' },
   { src: '02.jpg', name: 'living-room-furnished', alt: 'Furnished living room at 508 Avenue E' },
