@@ -1,10 +1,12 @@
 # Handoff — reignpropertyholdings.com
 
-Written 2026-08-24. Picks up at commit `9ca6e66` on `main`, working tree clean.
+Rewritten 2026-08-30. Picks up at commit `bb96adf` on `main`, working tree clean.
+Supersedes the 2026-08-24 version, which was 27 commits behind and described a
+backlog that is now largely done.
 
-This document exists so the next agent can continue without re-deriving anything. The
-research section matters most: it closes off a direction that looks obvious but is a dead
-end, and doing so cost a lot of verification effort.
+This document exists so the next agent can continue without re-deriving
+anything. Section 1 matters most: it closes off a direction that looks obvious
+but is a dead end, and doing so cost a lot of verification effort.
 
 ---
 
@@ -93,79 +95,96 @@ syndication set.**
 
 ## 3. Needs the owner, not an agent
 
-These are blocked on dashboard access and cannot be resolved from the repo:
+Blocked on dashboard access; no agent can resolve these from the repo.
 
-1. The **embed snippet / account id** (section 2a) — must be copied from Account → Settings → Advanced.
-2. **Which `TURBOTENANT_*` env vars are actually set** in the Cloudflare Pages dashboard.
-   Nothing in the repo records them, so several items in section 4 are written assuming unset.
-3. The **Cloudflare Web Analytics token** — every page still ships the literal placeholder
-   `REPLACE_WITH_CLOUDFLARE_ANALYTICS_TOKEN` (verified: all 8 pages).
-4. Whether **SendGrid sender verification** has been completed for the contact form.
+1. **Cloudflare Web Analytics token.** All 9 pages still ship the literal
+   `REPLACE_WITH_CLOUDFLARE_ANALYTICS_TOKEN`, so the site has never recorded a
+   visit. This is now the most valuable outstanding item: apply links carry
+   `utm_*` tags, making applications traceable leaving the site, but there is
+   no data on anything happening on it.
+2. **`STAYS_ICAL_*` feed URLs** (`_1332_VRBO`, `_1332_AIRBNB`, `_1334_VRBO`,
+   `_1334_AIRBNB`) in Cloudflare Pages. The availability line is wired up
+   everywhere and renders nothing until these exist. They carry booking
+   calendar tokens — dashboard only, never committed.
+3. **SendGrid sender verification for `admin@`.** The contact Function sends
+   `from: admin@reignpropertyholdings.com`. If that identity is unverified,
+   every submission fails. Unconfirmed either way; submitting the form once
+   settles it.
+4. **TurboTenant embed account id** (section 2a), from Account → Settings →
+   Advanced. Cannot be derived, and a guessed URL renders an empty state
+   silently.
+5. **Which `TURBOTENANT_*` env vars are set.** Nothing in the repo records
+   this. All three listings have checked-in URLs, so the site works without
+   them; a variable would only override.
+6. **Rent figures.** No price appears anywhere in the repo, which is why the
+   property schema has no `offers` block — see section 4.
 
----
+## 3a. One unresolved question
+
+`/apply/<slug>` was reported landing on the contact form for 1334 and 508,
+which should redirect to TurboTenant. **Never reproduced.** The redirects are
+correct locally on every check, and the Actions deploy log confirms the Pages
+project uploads a Functions bundle on every push.
+
+The outstanding diagnostic, which needs a browser outside the agent sandbox
+(the egress proxy blocks the domain and every `*.cloudflare.com` host):
+
+| URL | Meaning |
+|---|---|
+| `reignpropertyholdings.pages.dev/apply/1334-tricou-st` | the Pages project directly |
+| `reignpropertyholdings.com/apply/1334-tricou-st` | whatever serves the domain |
+
+If they disagree, the apex is served by something other than Pages — see the
+Worker item in section 4.
 
 ## 4. Prioritized backlog
 
-Verification status is marked because it matters: items I confirmed myself are safe to act
-on directly; items reported by a research subagent should be re-checked first. One audit
-claim ("sitemap.xml is a broken build artifact") **did not reproduce** — the sitemap is
-valid with 8 well-formed URLs. Treat unverified items with that in mind.
+Everything the 2026-08-24 list had under High is done, along with most of
+Medium and Low. What remains:
 
-### High value
+### Real and open
 
-- ~~**[VERIFIED] Photo-count badges are wrong.**~~ *Fixed in `4a8fedd`.* `properties.html` and `index.html` claim
-  "5 photos" for 1332 and 1334, but each gallery renders only 4 thumbnails. Two images ship
-  but are referenced by nothing: `public/images/properties/1332-tricou/kitchen-dining.jpg`
-  (1600x1099) and `public/images/properties/1334-tricou/living-room.jpg` (1600x1200).
-  **Preferred fix: add them as 5th thumbnails** so the badge becomes true, rather than
-  downgrading the badge to 4. Gallery markup pattern is at
-  `public/property-1332-tricou-st.html:99-113`.
-- ~~**[VERIFIED] Ownership copy contradicts the rest of the site.**~~ *Fixed in `4a8fedd`.* Both Tricou pages say
-  "owned and managed by Reign Property Holdings" (3 occurrences each — meta description, og,
-  twitter). Site-wide line is "owned by RPH, **managed by StrikeWorks**"
-  (`about.html:125`, `index.html:132`, `properties.html:76`).
-- **[UNVERIFIED] No lead attribution on apply redirects.** `redirect()` in
-  `functions/_shared/turbotenant.js` forwards the URL verbatim — no `utm_source`/`utm_medium`
-  /`utm_campaign`, no originating slug. Applications landing in TurboTenant cannot be traced
-  back to the website or to which page produced them. This is the single best
-  measurement win available and is purely local work.
-- **[UNVERIFIED] `/apply/start` is a dead end.** It resolves only through
-  `env.TURBOTENANT_APPLY_URL`, which is set nowhere in the repo, and there is no checked-in
-  fallback constant (compare `PORTAL_URL_FALLBACK`). It currently 302s to the contact form.
-- ~~**[UNVERIFIED] `available:false` is invisible in the HTML.**~~ *Fixed in `4a8fedd` —
-  confirmed true, and 1332's CTAs now reflect it.* 1332 renders normal "Apply"
-  buttons on `index.html`, `properties.html`, and `apply.html` that all silently bounce to
-  the contact form. No `unavailable`/`coming-soon` badge class exists in `style.css`.
+- **The Worker deploy drops every Function.** `package.json` compiles the
+  Pages Functions to `./dist/worker`, and `wrangler.jsonc` has no `main`
+  pointing at it, so a Worker deploy serves static assets only. Measured with
+  `wrangler dev`: `/` returns 200 while `/apply/*`, `/portal` and `/api/*`
+  return **404**. Latent if Pages serves the domain, live if the Worker does
+  (section 3a).
+  Adding `main` fixes it locally but **turned both Workers Builds checks red**
+  — and that is not the historical branch flakiness, since #8's own branch head
+  was green. Cause undetermined between (a) `dist/worker/index.js` missing at
+  deploy time, i.e. the configured build command does not run `npm run build`,
+  and (b) bundling a Worker validating `compatibility_date: 2026-08-29`, which
+  an assets-only deploy skips and which a local workerd rejected as too new.
+  The build log is dashboard-only. Do not re-add `main` blind.
+- **Two deploy paths run on every push.** Actions runs `wrangler pages deploy`;
+  Workers Builds runs `versions upload`/`deploy`. Both ship the same site to
+  different places. Recommendation is to keep Pages and disconnect the Workers
+  git integration, which also retires the historically red check — but it is
+  the owner's call.
+- **Wrangler version split.** `wrangler-action` installs **3.90.0**;
+  `package.json` declares **^4.127.1**. Two majors build this site depending on
+  path.
+- **Property schema has no `offers`.** Needs rent figures (section 3.6).
+  `url` and `potentialAction` are already there.
+- **Three footer links, one destination.** Resident Portal, Pay Rent and
+  Maintenance Request all land on `rental.turbotenant.com/` root, because
+  `PORTAL_URL_FALLBACK` is the renter site root. Deep links would need to come
+  from the dashboard. Left alone deliberately: collapsing visitor-facing nav
+  links is a content decision.
+- **No env templating.** No `.dev.vars.example`, so `wrangler pages dev` starts
+  with everything unset and a newcomer has to read `stays.js` to learn the
+  variable names.
 
-### Medium
+### Fixed since the last handoff
 
-- **[UNVERIFIED] Portal fallback is not a portal.** `PORTAL_URL_FALLBACK` is
-  `https://rental.turbotenant.com/` — the renter site root. The three distinct footer links
-  (Resident Portal, Pay Rent, Maintenance Request) all land on the same generic page.
-- **[UNVERIFIED] `LISTINGS[].page` is a dead field** — defined but read by nothing, so the
-  contact fallback drops visitors on a bare form with no link back to the home they wanted.
-- **[UNVERIFIED] Redirect routes export only `onRequestGet`** — HEAD gets a 405, which
-  breaks link checkers and some crawlers.
-- **[UNVERIFIED] Property JSON-LD has no application signal** — no `url`, no `Offer` with
-  price/availability, no `potentialAction` pointing at `/apply/<slug>`.
-- **[UNVERIFIED] README route table is wrong** — claims `/apply` is the account-wide
-  application; it actually serves static `apply.html`. Omits `/apply/508-avenue-e` and
-  `/apply/start`.
-- **[UNVERIFIED] Stale env comment** in `functions/_shared/turbotenant.js` omits
-  `TURBOTENANT_APPLY_URL_508_AVENUE_E`.
-
-### Low
-
-- No `_headers` file, so no `Referrer-Policy` governing what leaks on the outbound
-  TurboTenant hop. No `404.html`.
-- `robots.txt` is a blanket `Allow: /`, so `/apply/*` and `/portal` redirects are crawlable.
-- Duplicated footer nav targets (two links to `apply.html`; three labels for one `/portal`).
-- Contact fallback copy says "Online applications for this home aren't open right now" even
-  on the `/apply/start` path where the visitor never picked a home.
-- No env var templating: no `wrangler.toml`, no `.dev.vars.example`. `wrangler pages dev`
-  starts with everything unset.
-
----
+`utm_*` attribution on apply redirects · `/apply/start` no longer a mislabeled
+dead end · HEAD returns 302 rather than 405 on both redirect routes ·
+`LISTINGS[].page` wired into the contact fallback with a back-link ·
+`url` + `potentialAction` in property schema · 508 retyped from `Apartment` to
+`SingleFamilyResidence` · `404.html` · `robots.txt` disallows the redirect
+endpoints · responsive WebP images · minimum-two-tags rule with CI ·
+stale `TURBOTENANT_APPLY_URL_508_AVENUE_E` comment.
 
 ## 5. Furnished stays (Airbnb / VRBO) — shipped
 
@@ -196,39 +215,28 @@ Still outstanding here:
   public again and reports 2BR/**2**BA ("NOLA Jazz House"), matching 1332. Bathroom count
   is what separates it from 1334 (2BR/1BA).
 
-## 6. What changed this session
+## 6. Conventions worth knowing
 
-| Commit | Change |
-|---|---|
-| `76d8594` | 508 card badge "StrikeWorks" → "Single Family" |
-| `215662f` | Featured 508 Avenue E on homepage (2nd position), portfolio stat 2 → 3 |
-| `f9d2bf5` | Trimmed homepage Featured properties to first two cards |
-| `9b48bb8` | Added woman-owned (RPH) / veteran-owned (StrikeWorks) designations site-wide |
-| `2e3edea` | Higher-res StrikeWorks logo (320x320, transparent bg) |
-| `9ca6e66` | Compacted property gallery |
-| `5125acf` | This handoff document |
-| `4a8fedd` | Furnished-stays feature + iCal availability API; fixed 1332's dead Apply CTAs, photo-count badges, ownership copy |
-
-Earlier in the session, 508 Avenue E was added as a full property page with 5 photos
-sourced from the owner's own Redfin listing (owner confirmed they hold the rights).
-
-**Gallery fix detail, since it is easy to regress:** the old layout was a `2fr 1fr` grid with
-thumbnails stacked in the right column, each carrying `aspect-ratio: 4/3`. That aspect ratio
-overrode the `1fr` rows, so the thumbnail column outgrew the main photo — roughly 1100px of
-thumbs against a ~507px image, leaving hundreds of px of dead space beneath it, and about
-double that on the 8-photo 508 page. It is now a full-bleed main photo plus an auto-fit
-thumbnail strip; 4 and 8 photos cost identical vertical space (measured 590px on 508, down
-from ~2200px).
-
-One CSS gotcha worth not relearning: `aspect-ratio` combined with `max-height` shrinks the
-element's **width** to preserve the ratio once height clamps, which just moves the dead space
-from below the image to the right of it. `.gallery-main` therefore uses
-`height: clamp(240px, 40vw, 480px)` with no `aspect-ratio`.
-
-Note the homepage intentionally shows only 2 of 3 properties — that was an explicit owner
-decision, not an oversight. A stale audit note calls it a gap; it is not.
-
----
+- **Every property card carries at least two tags**, enforced by
+  `test/tags.test.mjs` via the `Checks` workflow on every PR. A tag must be
+  supported by that property's own detail page — do not tag a home with
+  something its page never claims.
+- **Images are responsive WebP.** Photos are `<picture>` elements with a WebP
+  `srcset` and the untouched JPEG as fallback. Regenerate with
+  `npm install --no-save sharp && node scripts/optimize-images.mjs`. sharp is
+  deliberately not a dependency: Workers Builds runs `npm install`, and
+  platform binaries on every deploy is a bad trade for a task that runs only
+  when photos change. **Never upscale** — the script skips widths above a
+  source's natural size, and earlier work established that an upscaled file
+  looks worse than the smaller native one.
+- **The gallery hero is a `<picture>`.** A matching `<source>` outranks the
+  `<img>` src, so the swap handler in `main.js` must update both. Setting `src`
+  alone silently leaves the old photo on screen.
+- **`npm test`** runs the iCal and tag suites. Neither has dependencies, so CI
+  needs no install step.
+- **Availability degrades to nothing.** With no feed configured the line stays
+  hidden rather than rendering an empty box or a false "available now". Keep
+  that property in any change to it.
 
 ## 7. Provenance
 
