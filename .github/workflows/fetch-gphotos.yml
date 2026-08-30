@@ -7,6 +7,10 @@ on:
         description: Public Google Photos share URL
         required: true
         default: https://photos.app.goo.gl/iHqcbMoeX1NYhRSC9
+      target_branch:
+        description: Branch to commit imported photos on
+        required: true
+        default: cursor/gphotos-property-update-80b0
 
 jobs:
   fetch:
@@ -15,6 +19,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_branch }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
