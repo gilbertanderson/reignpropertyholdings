@@ -13,7 +13,7 @@ USER_AGENT = "reignpropertyholdings-image-import/1.0"
 
 def extract_photo_urls(html: str) -> list[str]:
     patterns = [
-        r"https://lh3\.googleusercontent\.com/[a-zA-Z0-9\-_=]+",
+        r"https://lh3\.googleusercontent\.com/[a-zA-Z0-9\-_=/]+",
         r"https://lh3\.googleusercontent\.com/[^\"'\\s<>]+",
     ]
     seen: set[str] = set()
@@ -27,6 +27,15 @@ def extract_photo_urls(html: str) -> list[str]:
             urls.append(url)
     # Album cover duplicates first/last in older scrapers; keep unique only.
     return urls
+
+
+def normalize_download_url(url: str) -> str:
+    """Return a URL suitable for downloading full-size bytes."""
+    if re.search(r"=[ws]\d", url):
+        return url
+    if url.endswith("-no"):
+        return url
+    return f"{url}=w0"
 
 
 def title_from_html(html: str) -> str:
@@ -53,9 +62,12 @@ def download_album(album_url: str, out_dir: Path) -> dict:
 
     saved: list[dict] = []
     for index, url in enumerate(urls, start=1):
-        # Request a large variant when the URL has no size token.
-        fetch_url = url if "=" in url.split("/")[-1] else f"{url}=w2560"
+        fetch_url = normalize_download_url(url)
         image = session.get(fetch_url, timeout=120)
+        if image.status_code == 400 and fetch_url != url:
+            image = session.get(url, timeout=120)
+        if image.status_code == 400 and "=w0" not in url:
+            image = session.get(f"{url}=s0", timeout=120)
         image.raise_for_status()
         ext = "jpg"
         if "image/webp" in image.headers.get("content-type", ""):
