@@ -1,0 +1,46 @@
+name: Fetch iCloud shared album
+
+on:
+  workflow_dispatch:
+    inputs:
+      album_url:
+        description: Public iCloud shared album URL or token
+        required: true
+        default: https://share.icloud.com/photos/099lD-fpKv052nKHUgCOBl5aw
+      target_branch:
+        description: Branch to commit imported photos on
+        required: true
+        default: cursor/1334-icloud-photos-80b0
+  push:
+    branches:
+      - cursor/1334-icloud-photos-80b0
+    paths:
+      - .icloud-fetch-trigger
+
+env:
+  ALBUM_URL: https://share.icloud.com/photos/099lD-fpKv052nKHUgCOBl5aw
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_branch || github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python scripts/fetch-icloud-album.py "${{ github.event.inputs.album_url || env.ALBUM_URL }}" imports/icloud-import
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add imports/icloud-import
+          if git diff --staged --quiet; then
+            echo "No files to commit"
+            exit 1
+          fi
+          git commit -m "Import iCloud shared album for property photos"
+          git push
