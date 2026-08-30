@@ -11,6 +11,14 @@ on:
         description: Branch to commit imported photos on
         required: true
         default: cursor/gphotos-property-update-80b0
+  push:
+    branches:
+      - cursor/gphotos-property-update-80b0
+    paths:
+      - .gphotos-fetch-trigger
+
+env:
+  ALBUM_URL: https://photos.app.goo.gl/iHqcbMoeX1NYhRSC9
 
 jobs:
   fetch:
@@ -20,16 +28,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.target_branch }}
+          ref: ${{ github.event.inputs.target_branch || github.ref_name }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install requests
-      - run: python scripts/fetch-gphotos-album.py "${{ inputs.album_url }}" tmp/gphotos-import
+      - run: python scripts/fetch-gphotos-album.py "${{ github.event.inputs.album_url || env.ALBUM_URL }}" tmp/gphotos-import
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tmp/gphotos-import scripts/fetch-gphotos-album.py .github/workflows/fetch-gphotos.yml
+          git add tmp/gphotos-import
           if git diff --staged --quiet; then
             echo "No files to commit"
             exit 0
