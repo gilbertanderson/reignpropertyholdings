@@ -34,15 +34,15 @@ jobs:
           python-version: "3.12"
       - run: pip install requests playwright
       - run: playwright install --with-deps chromium
-      - run: python scripts/fetch-gphotos-playwright.py "${{ github.event.inputs.album_url || env.ALBUM_URL }}" tmp/gphotos-import
+      - run: python scripts/fetch-gphotos-playwright.py "${{ github.event.inputs.album_url || env.ALBUM_URL }}" imports/gphotos-import
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tmp/gphotos-import
+          git add imports/gphotos-import
           if git diff --staged --quiet; then
             echo "No files to commit"
-            if [ -f tmp/gphotos-import/debug.json ]; then
-              cat tmp/gphotos-import/debug.json
+            if [ -f imports/gphotos-import/debug.json ]; then
+              cat imports/gphotos-import/debug.json
             fi
             exit 1
           fi

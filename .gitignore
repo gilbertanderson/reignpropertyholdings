@@ -3,6 +3,7 @@
 dist/
 node_modules/
 tmp/
+!imports/
 
 # Local Function env vars. Holds the Airbnb/VRBO iCal URLs, which carry
 # access tokens for the booking calendars — must never be committed.
