@@ -31,6 +31,22 @@ document.addEventListener("DOMContentLoaded", function () {
     var applyParams = new URLSearchParams(window.location.search);
     if (applyParams.get("apply")) {
       applyNote.hidden = false;
+
+      // Offer a way back to the home they came from. `home` is supplied by the
+      // /apply redirect, but treat it as untrusted input all the same: only a
+      // same-origin path is allowed, so a crafted ?home=//evil.example or a
+      // javascript: value can't turn this into an off-site link.
+      var home = applyParams.get("home");
+      var wantedHome = applyParams.get("property");
+      if (home && home.charAt(0) === "/" && home.charAt(1) !== "/" && wantedHome) {
+        var back = document.createElement("a");
+        back.setAttribute("href", home);
+        back.textContent = "Back to " + wantedHome;
+        back.style.fontWeight = "700";
+        applyNote.appendChild(document.createTextNode(" "));
+        applyNote.appendChild(back);
+      }
+
       var messageField = document.querySelector("#message");
       if (messageField && !messageField.value) {
         var wanted = applyParams.get("property");
