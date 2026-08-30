@@ -4,6 +4,19 @@ reignpropertyholdings.com
 Static marketing site for Reign Property Holdings LLC, deployed to Cloudflare
 Pages (`public/`) with Cloudflare Pages Functions (`functions/`).
 
+## Site conventions
+
+**Every property card carries at least two tags.** A single pill reads as an
+oversight rather than a decision, and an uneven count leaves the cards
+different heights in the grid. Enforced by `test/tags.test.mjs`, which runs on
+every pull request via `.github/workflows/checks.yml`.
+
+Tags must be supported by the property's own detail page — its features list or
+spec strip. Don't tag a home with something the page doesn't claim.
+
+Run the checks locally with `npm test` (no install needed; both suites are
+dependency-free).
+
 ## TurboTenant integration
 
 Rental applications, screening, and the resident portal run on TurboTenant. The

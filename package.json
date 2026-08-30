@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "build": "wrangler pages functions build --outdir=./dist/worker",
+    "test": "node test/ical.test.mjs && node test/tags.test.mjs",
     "cf:preview": "npm run build && wrangler versions upload",
     "cf:deploy": "npm run build && wrangler deploy"
   },

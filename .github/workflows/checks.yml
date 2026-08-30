@@ -1,0 +1,21 @@
+# Repo checks. Deliberately separate from deploy.yml: a content rule should
+# block a pull request, not a deployment. If it ran in the deploy job a
+# violation on main would stop the site updating, which is the wrong trade.
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # No install step: both suites are dependency-free ESM run straight by
+      # node, so there is no lockfile to restore or cache.
+      - run: npm test
