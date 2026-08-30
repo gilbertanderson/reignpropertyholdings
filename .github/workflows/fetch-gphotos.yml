@@ -40,7 +40,10 @@ jobs:
           git add tmp/gphotos-import
           if git diff --staged --quiet; then
             echo "No files to commit"
-            exit 0
+            if [ -f tmp/gphotos-import/debug.json ]; then
+              cat tmp/gphotos-import/debug.json
+            fi
+            exit 1
           fi
           git commit -m "Import Google Photos album for property image update"
           git push
