@@ -1,0 +1,38 @@
+name: Fetch Google Photos album
+
+on:
+  workflow_dispatch:
+    inputs:
+      album_url:
+        description: Public Google Photos share URL
+        required: true
+        default: https://photos.app.goo.gl/iHqcbMoeX1NYhRSC9
+      target_branch:
+        description: Branch to commit imported photos on
+        required: true
+        default: cursor/gphotos-property-update-80b0
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_branch }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python scripts/fetch-gphotos-album.py "${{ inputs.album_url }}" tmp/gphotos-import
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tmp/gphotos-import scripts/fetch-gphotos-album.py .github/workflows/fetch-gphotos.yml
+          if git diff --staged --quiet; then
+            echo "No files to commit"
+            exit 0
+          fi
+          git commit -m "Import Google Photos album for property image update"
+          git push
