@@ -222,6 +222,11 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- Hero ---------- */
 
+/* Homepage hero. The image lives here rather than in an inline style so the
+   media query below can hand phones a smaller file — an inline
+   background-image outranks any stylesheet rule, which made that impossible
+   while it sat on the element. Each image-set is preceded by a plain url()
+   fallback for browsers that don't parse image-set. */
 .hero {
   position: relative;
   color: #fff;
@@ -229,6 +234,21 @@ a { color: inherit; text-decoration: none; }
   background-size: cover;
   background-position: center;
   background-color: #10233f;
+  background-image: url('../images/properties/1332-tricou/exterior-front.jpg');
+  background-image: image-set(
+    url('../images/properties/1332-tricou/exterior-front-1600.webp') type('image/webp'),
+    url('../images/properties/1332-tricou/exterior-front.jpg') type('image/jpeg')
+  );
+}
+
+@media (max-width: 700px) {
+  .hero {
+    background-image: url('../images/properties/1332-tricou/exterior-front.jpg');
+    background-image: image-set(
+      url('../images/properties/1332-tricou/exterior-front-800.webp') type('image/webp'),
+      url('../images/properties/1332-tricou/exterior-front.jpg') type('image/jpeg')
+    );
+  }
 }
 
 .hero::after {

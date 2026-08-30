@@ -96,16 +96,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Property gallery: click a thumbnail to swap the main photo
+  // Property gallery: click a thumbnail to swap the main photo.
+  //
+  // The hero is a <picture>, so the <source> has to be updated too — a
+  // matching source outranks the <img> src, and setting src alone would leave
+  // the previous photo on screen in every browser that supports webp.
   var galleries = document.querySelectorAll("[data-gallery]");
   galleries.forEach(function (gallery) {
     var main = gallery.querySelector(".gallery-main img");
+    var source = gallery.querySelector(".gallery-main [data-gallery-source]");
     var thumbs = gallery.querySelectorAll(".gallery-thumbs button");
     thumbs.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var fullSrc = btn.getAttribute("data-full");
+        var fullSrcset = btn.getAttribute("data-full-srcset");
         var alt = btn.getAttribute("data-alt");
         if (main && fullSrc) {
+          if (source && fullSrcset) source.setAttribute("srcset", fullSrcset);
           main.setAttribute("src", fullSrc);
           main.setAttribute("alt", alt || "");
         }
