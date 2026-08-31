@@ -82,3 +82,57 @@ stay safe to ship before the TurboTenant listings are live.
    `available`).
 2. Or set its `TURBOTENANT_APPLY_URL_<SLUG>` variable in Cloudflare Pages.
 3. Link to `/apply/<slug>` from the property page, card, and `apply.html`.
+
+## Cloudflare setup
+
+Production traffic is served by **Cloudflare Pages** (`reignpropertyholdings`
+project). The domain CNAMEs to `reignpropertyholdings.pages.dev`; Workers
+Builds deploys two unused Worker services and does not affect the live site.
+
+### Close the configuration gap
+
+Code is ready; production behavior depends on Pages environment variables.
+Use this checklist:
+
+1. **Copy the template locally**
+   ```bash
+   cp .dev.vars.example .dev.vars
+   ```
+2. **Fill in values** (see table below). iCal URLs come from VRBO/Airbnb host
+   calendar exports. The Web Analytics token comes from the Cloudflare
+   dashboard: **Analytics & Logs → Web Analytics → Add site →**
+   `reignpropertyholdings.com` → copy the beacon token into
+   `CLOUDFLARE_WEB_ANALYTICS_TOKEN`.
+3. **Authenticate wrangler** (one-time on your machine)
+   ```bash
+   npx wrangler login
+   ```
+4. **Push secrets to Pages**
+   ```bash
+   npm run cf:secrets:push
+   ```
+   Or set the same keys manually under **Workers & Pages → reignpropertyholdings
+   → Settings → Environment variables → Production**.
+5. **Verify on the live site**
+   ```bash
+   curl -s https://reignpropertyholdings.com/api/status | jq .
+   curl -s "https://reignpropertyholdings.com/api/availability?slug=1332-tricou-st" | jq .
+   ```
+   `/api/status` returns booleans only (never secret values). Availability
+   should report `available: true` with `sources` once both iCal feeds for a
+   slug are set.
+
+### Cursor + Cloudflare MCP
+
+`.cursor/mcp.json` lists Cloudflare MCP servers (dashboard, docs, builds,
+observability). Authenticate them in **Cursor → Settings → MCP** so agents can
+read build logs and project state. This environment does not have that auth;
+local Cursor with MCP is the path to dashboard-only answers (Workers Builds
+logs, env var confirmation).
+
+### Deploy path
+
+GitHub Actions deploys to Pages on every push to `main` (`.github/workflows/
+deploy.yml`). Workers Builds runs in parallel but nothing routes to those
+Workers. Disconnecting the Workers git integration in the Cloudflare dashboard
+is optional and retires a misleading check — see `HANDOFF.md` section 3a.

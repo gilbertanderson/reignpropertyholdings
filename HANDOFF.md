@@ -97,11 +97,11 @@ syndication set.**
 
 Blocked on dashboard access; no agent can resolve these from the repo.
 
-1. **Cloudflare Web Analytics token.** All 9 pages still ship the literal
-   `REPLACE_WITH_CLOUDFLARE_ANALYTICS_TOKEN` in the checked-in HTML, but
-   `functions/_middleware.js` now swaps in `CLOUDFLARE_WEB_ANALYTICS_TOKEN`
-   at request time (or strips the beacon when unset). Set the variable in
-   Cloudflare Pages to start recording visits.
+1. **Cloudflare Web Analytics token.** Middleware injects
+   `CLOUDFLARE_WEB_ANALYTICS_TOKEN` at request time (or strips the beacon when
+   unset). Push via `npm run cf:secrets:push` after copying
+   `.dev.vars.example` → `.dev.vars`, or set in the Pages dashboard. Confirm
+   with `GET /api/status` (`analytics: true`).
 2. **`STAYS_ICAL_*` feed URLs** (`_1332_VRBO`, `_1332_AIRBNB`, `_1334_VRBO`,
    `_1334_AIRBNB`) in Cloudflare Pages. The availability line is wired up
    everywhere and renders nothing until these exist. They carry booking
@@ -110,8 +110,8 @@ Blocked on dashboard access; no agent can resolve these from the repo.
    against the listing/room id already recorded in `stays.js` — two VRBO
    links sent along the way did not match either listing and were
    discarded). Owner was walking through the Cloudflare dashboard to save
-   them as this was written; **confirm with the two `/api/availability`
-   URLs below before assuming they're set.**
+   them as this was written; **confirm with `/api/status` (`stays`) and the
+   `/api/availability?slug=…` URLs below before assuming they're set.**
 3. **SendGrid sender verification for `admin@`.** The contact Function sends
    `from: admin@reignpropertyholdings.com`. If that identity is unverified,
    every submission fails. Unconfirmed either way; submitting the form once
@@ -263,8 +263,8 @@ Still outstanding here:
 - **The gallery hero is a `<picture>`.** A matching `<source>` outranks the
   `<img>` src, so the swap handler in `main.js` must update both. Setting `src`
   alone silently leaves the old photo on screen.
-- **`npm test`** runs the iCal and tag suites. Neither has dependencies, so CI
-  needs no install step.
+- **`npm test`** runs the iCal, tag, analytics, and env-status suites. Neither
+  has dependencies beyond node, so CI needs no install step.
 - **Availability degrades to nothing.** With no feed configured the line stays
   hidden rather than rendering an empty box or a false "available now". Keep
   that property in any change to it.

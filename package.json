@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "wrangler pages functions build --outdir=./dist/worker",
-    "test": "node test/ical.test.mjs && node test/tags.test.mjs && node test/analytics.test.mjs",
+    "test": "node test/ical.test.mjs && node test/tags.test.mjs && node test/analytics.test.mjs && node test/env-status.test.mjs",
+    "cf:secrets:push": "node scripts/push-pages-secrets.mjs",
+    "cf:secrets:push:dry-run": "node scripts/push-pages-secrets.mjs --dry-run",
     "cf:preview": "npm run build && wrangler versions upload",
     "cf:deploy": "npm run build && wrangler deploy"
   },
