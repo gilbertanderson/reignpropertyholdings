@@ -15,6 +15,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 7b4c409e7d634a1d31882e0f06802ff9
-          # Match package.json (^4.x) instead of the action's legacy v3 default.
-          wranglerVersion: "4"
           command: pages deploy public --project-name=reignpropertyholdings
