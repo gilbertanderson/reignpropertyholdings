@@ -122,6 +122,13 @@ document.addEventListener("DOMContentLoaded", function () {
     var main = gallery.querySelector(".gallery-main img");
     var source = gallery.querySelector(".gallery-main [data-gallery-source]");
     var thumbs = gallery.querySelectorAll(".gallery-thumbs button");
+
+    function focusThumb(btn) {
+      thumbs.forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      btn.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    }
+
     thumbs.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var fullSrc = btn.getAttribute("data-full");
@@ -132,10 +139,14 @@ document.addEventListener("DOMContentLoaded", function () {
           main.setAttribute("src", fullSrc);
           main.setAttribute("alt", alt || "");
         }
-        thumbs.forEach(function (b) { b.classList.remove("active"); });
-        btn.classList.add("active");
+        focusThumb(btn);
       });
     });
+
+    var active = gallery.querySelector(".gallery-thumbs button.active");
+    if (active) {
+      active.scrollIntoView({ inline: "center", block: "nearest", behavior: "auto" });
+    }
   });
 
   // Furnished stays: fill in the next opening from the booking platforms'
