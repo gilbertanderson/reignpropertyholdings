@@ -46,16 +46,23 @@ manages.
 
 ### Environment variables
 
-Set these in the Cloudflare Pages project (Settings → Environment variables):
+Set these in the Cloudflare Pages project (Settings → Environment variables).
+For local development, copy `.dev.vars.example` to `.dev.vars` and fill in
+values — `wrangler pages dev public` loads it automatically.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
+| `SENDGRID_API_KEY` | yes | Sends contact-form submissions |
+| `CLOUDFLARE_WEB_ANALYTICS_TOKEN` | no | Cloudflare Web Analytics beacon token; injected into HTML by `functions/_middleware.js` |
 | `TURBOTENANT_APPLY_URL` | no | Fallback application link used when a listing has no link of its own |
 | `TURBOTENANT_APPLY_URL_1332_TRICOU_ST` | no | Application link for 1332 Tricou St — also overrides its `available: false` |
 | `TURBOTENANT_APPLY_URL_1334_TRICOU_ST` | no | Overrides the checked-in link for 1334 Tricou St |
 | `TURBOTENANT_APPLY_URL_508_AVENUE_E` | no | Overrides the checked-in link for 508 Avenue E |
 | `TURBOTENANT_PORTAL_URL` | no | Resident portal link (defaults to `https://rental.turbotenant.com/`) |
-| `SENDGRID_API_KEY` | yes | Sends contact-form submissions |
+| `STAYS_ICAL_1332_VRBO` | no | VRBO iCal export for 1332 Tricou St furnished stays |
+| `STAYS_ICAL_1332_AIRBNB` | no | Airbnb iCal export for 1332 Tricou St furnished stays |
+| `STAYS_ICAL_1334_VRBO` | no | VRBO iCal export for 1334 Tricou St furnished stays |
+| `STAYS_ICAL_1334_AIRBNB` | no | Airbnb iCal export for 1334 Tricou St furnished stays |
 
 Resolution order per listing: its environment variable, then its checked-in
 `url`, then the account-wide `TURBOTENANT_APPLY_URL`. A listing marked

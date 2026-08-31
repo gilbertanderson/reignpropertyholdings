@@ -98,10 +98,10 @@ syndication set.**
 Blocked on dashboard access; no agent can resolve these from the repo.
 
 1. **Cloudflare Web Analytics token.** All 9 pages still ship the literal
-   `REPLACE_WITH_CLOUDFLARE_ANALYTICS_TOKEN`, so the site has never recorded a
-   visit. This is now the most valuable outstanding item: apply links carry
-   `utm_*` tags, making applications traceable leaving the site, but there is
-   no data on anything happening on it.
+   `REPLACE_WITH_CLOUDFLARE_ANALYTICS_TOKEN` in the checked-in HTML, but
+   `functions/_middleware.js` now swaps in `CLOUDFLARE_WEB_ANALYTICS_TOKEN`
+   at request time (or strips the beacon when unset). Set the variable in
+   Cloudflare Pages to start recording visits.
 2. **`STAYS_ICAL_*` feed URLs** (`_1332_VRBO`, `_1332_AIRBNB`, `_1334_VRBO`,
    `_1334_AIRBNB`) in Cloudflare Pages. The availability line is wired up
    everywhere and renders nothing until these exist. They carry booking
@@ -204,9 +204,8 @@ Medium and Low. What remains:
   `PORTAL_URL_FALLBACK` is the renter site root. Deep links would need to come
   from the dashboard. Left alone deliberately: collapsing visitor-facing nav
   links is a content decision.
-- **No env templating.** No `.dev.vars.example`, so `wrangler pages dev` starts
-  with everything unset and a newcomer has to read `stays.js` to learn the
-  variable names.
+- **No env templating.** `.dev.vars.example` documents every variable for local
+  `wrangler pages dev`.
 
 ### Fixed since the last handoff
 

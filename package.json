@@ -1,9 +1,10 @@
 {
   "name": "reignpropertyholdings",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "wrangler pages functions build --outdir=./dist/worker",
-    "test": "node test/ical.test.mjs && node test/tags.test.mjs",
+    "test": "node test/ical.test.mjs && node test/tags.test.mjs && node test/analytics.test.mjs",
     "cf:preview": "npm run build && wrangler versions upload",
     "cf:deploy": "npm run build && wrangler deploy"
   },
