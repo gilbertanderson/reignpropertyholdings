@@ -15,4 +15,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 7b4c409e7d634a1d31882e0f06802ff9
+          # Pinned explicitly rather than left to wrangler-action's own
+          # default, and matched to package.json's devDependency so both
+          # deploy paths build with the same wrangler major version.
+          wranglerVersion: "3.90.0"
           command: pages deploy public --project-name=reignpropertyholdings

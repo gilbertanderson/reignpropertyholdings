@@ -8,6 +8,6 @@
     "cf:deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
-    "wrangler": "^4.127.1"
+    "wrangler": "3.90.0"
   }
 }
