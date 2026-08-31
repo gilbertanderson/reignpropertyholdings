@@ -1,0 +1,28 @@
+# Copy to .dev.vars for local Pages Functions development:
+#   cp .dev.vars.example .dev.vars
+#
+# wrangler pages dev public loads this file automatically. Never commit .dev.vars.
+
+# --- Contact form (required for /api/contact) ---
+SENDGRID_API_KEY=
+
+# --- Cloudflare Web Analytics ---
+# Dashboard: Web Analytics → Add site → copy the beacon token.
+# Injected into HTML at request time by functions/_middleware.js.
+CLOUDFLARE_WEB_ANALYTICS_TOKEN=
+
+# --- TurboTenant (optional overrides) ---
+# Checked-in URLs in functions/_shared/turbotenant.js are used when unset.
+TURBOTENANT_APPLY_URL=
+TURBOTENANT_APPLY_URL_1332_TRICOU_ST=
+TURBOTENANT_APPLY_URL_1334_TRICOU_ST=
+TURBOTENANT_APPLY_URL_508_AVENUE_E=
+TURBOTENANT_PORTAL_URL=
+
+# --- Furnished stays iCal feeds (optional) ---
+# Export URLs from VRBO/Airbnb host calendars. Tokens grant read access to
+# booking calendars — set in Cloudflare Pages for production, never commit.
+STAYS_ICAL_1332_VRBO=
+STAYS_ICAL_1332_AIRBNB=
+STAYS_ICAL_1334_VRBO=
+STAYS_ICAL_1334_AIRBNB=
