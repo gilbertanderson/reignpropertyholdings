@@ -556,7 +556,7 @@ section { padding: 72px 0; }
 .gallery {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* Height is set directly rather than via aspect-ratio + max-height: that pair
@@ -571,38 +571,70 @@ section { padding: 72px 0; }
    switching photos, which is how the listing portals do it too. */
 .gallery-main {
   background: var(--bg-alt);
-  border-radius: var(--radius);
+  border-radius: 12px;
   overflow: hidden;
   line-height: 0;
 }
 .gallery-main img { width: 100%; height: auto; display: block; }
 
+/* Airbnb-style strip: one horizontal row of fixed-size tiles you can swipe. */
 .gallery-thumbs {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 6px;
+  margin: 0 -2px;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.25) transparent;
 }
 
+.gallery-thumbs::-webkit-scrollbar {
+  height: 6px;
+}
+
+.gallery-thumbs::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 999px;
+}
+
+/* Room groups preserve photo order without forcing extra rows. */
 .gallery-thumb-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-  gap: 10px;
+  display: contents;
 }
 
 .gallery-thumbs button {
-  border: 2px solid transparent;
+  flex: 0 0 auto;
+  width: 88px;
+  height: 66px;
   padding: 0;
-  border-radius: 6px;
+  border: none;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  background: none;
-  aspect-ratio: 4/3;
+  background: var(--bg-alt);
+  scroll-snap-align: start;
+  opacity: 0.72;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.1);
 }
-.gallery-thumbs button img { width: 100%; height: 100%; object-fit: cover; }
-.gallery-thumbs button.active { border-color: var(--blue-600); }
+.gallery-thumbs button:hover { opacity: 0.92; }
+.gallery-thumbs button img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-thumbs button.active {
+  opacity: 1;
+  box-shadow: inset 0 0 0 2px var(--ink-900);
+}
 
-@media (max-width: 780px) {
-  .gallery-thumb-group { grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); }
+@media (min-width: 781px) {
+  .gallery-thumbs button {
+    width: 96px;
+    height: 72px;
+  }
 }
 
 .detail-layout {
