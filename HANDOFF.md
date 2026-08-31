@@ -106,6 +106,12 @@ Blocked on dashboard access; no agent can resolve these from the repo.
    `_1334_AIRBNB`) in Cloudflare Pages. The availability line is wired up
    everywhere and renders nothing until these exist. They carry booking
    calendar tokens — dashboard only, never committed.
+   All four values were collected and verified 2026-08-31 (each checked
+   against the listing/room id already recorded in `stays.js` — two VRBO
+   links sent along the way did not match either listing and were
+   discarded). Owner was walking through the Cloudflare dashboard to save
+   them as this was written; **confirm with the two `/api/availability`
+   URLs below before assuming they're set.**
 3. **SendGrid sender verification for `admin@`.** The contact Function sends
    `from: admin@reignpropertyholdings.com`. If that identity is unverified,
    every submission fails. Unconfirmed either way; submitting the form once
@@ -119,23 +125,35 @@ Blocked on dashboard access; no agent can resolve these from the repo.
 6. **Rent figures.** No price appears anywhere in the repo, which is why the
    property schema has no `offers` block — see section 4.
 
-## 3a. One unresolved question
+## 3a. Resolved: the domain is served by Pages
 
-`/apply/<slug>` was reported landing on the contact form for 1334 and 508,
-which should redirect to TurboTenant. **Never reproduced.** The redirects are
-correct locally on every check, and the Actions deploy log confirms the Pages
-project uploads a Functions bundle on every push.
+`/apply/<slug>` was reported landing on the contact form for 1334 and 508 in
+an earlier session, which should redirect to TurboTenant, and was never
+reproduced — the redirects were correct locally on every check. What was
+missing was proof of which Cloudflare service actually answers the domain.
 
-The outstanding diagnostic, which needs a browser outside the agent sandbox
-(the egress proxy blocks the domain and every `*.cloudflare.com` host):
+**Settled 2026-08-31** from the zone's exported DNS records (owner pulled
+these from the dashboard):
 
-| URL | Meaning |
-|---|---|
-| `reignpropertyholdings.pages.dev/apply/1334-tricou-st` | the Pages project directly |
-| `reignpropertyholdings.com/apply/1334-tricou-st` | whatever serves the domain |
+```
+reignpropertyholdings.com.  CNAME  reignpropertyholdings.pages.dev.  ; cf_tags=cf-proxied:true
+```
 
-If they disagree, the apex is served by something other than Pages — see the
-Worker item in section 4.
+The apex CNAMEs straight to the Pages project. The domain overview's "No
+Workers connected" card was accurate, not a red herring: neither
+`reignpropertyholdings` nor `reignpropertyholdingsllc` (the two Workers
+services behind the perpetually flaky "Workers Builds" checks) is wired to
+the domain at all. Nothing routes real traffic through them.
+
+Two things follow:
+
+- **The original report was never explained and most likely never happened
+  as described** — perhaps a cached page. There is no code path by which it
+  could have been the Worker-drops-Functions defect below, since that Worker
+  was never in the traffic path.
+- **The "Workers Builds" checks are cosmetic.** They build and deploy two
+  services nothing points at. Disconnecting that git integration (section 4)
+  would retire a check that has never reflected the live site's health.
 
 ## 4. Prioritized backlog
 
@@ -144,19 +162,21 @@ Medium and Low. What remains:
 
 ### Real and open
 
-- **The Worker deploy drops every Function.** `package.json` compiles the
-  Pages Functions to `./dist/worker`, and `wrangler.jsonc` has no `main`
-  pointing at it, so a Worker deploy serves static assets only. Measured with
-  `wrangler dev`: `/` returns 200 while `/apply/*`, `/portal` and `/api/*`
-  return **404**. Latent if Pages serves the domain, live if the Worker does
-  (section 3a).
-  Adding `main` fixes it locally but **turned both Workers Builds checks red**
-  — and that is not the historical branch flakiness, since #8's own branch head
-  was green. Cause undetermined between (a) `dist/worker/index.js` missing at
-  deploy time, i.e. the configured build command does not run `npm run build`,
-  and (b) bundling a Worker validating `compatibility_date: 2026-08-29`, which
+- **The Worker deploy drops every Function — confirmed latent, not live**
+  (section 3a: the domain CNAMEs to the Pages project, not to either Worker
+  service). Still worth fixing since it means those two services 404 on
+  every `/apply/*`, `/portal` and `/api/*` request if anyone or anything ever
+  does point traffic at them, but it is no longer urgent.
+  `package.json` compiles the Pages Functions to `./dist/worker`, and
+  `wrangler.jsonc` has no `main` pointing at it. Adding `main` fixes it
+  locally but **turned both Workers Builds checks red** — and that is not
+  the historical branch flakiness, since #8's own branch head was green.
+  Cause undetermined between (a) `dist/worker/index.js` missing at deploy
+  time, i.e. the configured build command does not run `npm run build`, and
+  (b) bundling a Worker validating `compatibility_date: 2026-08-29`, which
   an assets-only deploy skips and which a local workerd rejected as too new.
-  The build log is dashboard-only. Do not re-add `main` blind.
+  The build log is dashboard-only. Do not re-add `main` blind — and given
+  section 3a, there is no urgency to.
 - **Two deploy paths run on every push.** Actions runs `wrangler pages deploy`;
   Workers Builds runs `versions upload`/`deploy`. Both ship the same site to
   different places. Recommendation is to keep Pages and disconnect the Workers
