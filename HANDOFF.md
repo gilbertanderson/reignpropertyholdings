@@ -185,6 +185,18 @@ Medium and Low. What remains:
 - **Wrangler version split.** `wrangler-action` installs **3.90.0**;
   `package.json` declares **^4.127.1**. Two majors build this site depending on
   path.
+  **Attempted and reverted 2026-08-31** (#31): pinning both to 3.90.0 broke
+  both Workers Builds checks reproducibly — green on `main`'s tip, red on the
+  otherwise-identical PR head. No log text was visible via the API to confirm
+  why. Strongest guess, unverified: `wrangler.jsonc`'s
+  `compatibility_date: "2026-08-29"` may be too new for wrangler 3.90.0 to
+  accept — a local workerd earlier this session rejected that exact date
+  under wrangler 4 for being newer than the binary supported, and 3.90.0 is
+  older still. These checks don't reflect the live site either way (section
+  3a), so there's no urgency, but don't re-attempt the same pin blind — get
+  the build log first, or try pinning both to something newer than 4.24.3
+  instead (npm audit's own trail from 3.90.0 leads there, see the commit this
+  entry replaces for the detail).
 - **Property schema has no `offers`.** Needs rent figures (section 3.6).
   `url` and `potentialAction` are already there.
 - **Three footer links, one destination.** Resident Portal, Pay Rent and
