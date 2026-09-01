@@ -95,7 +95,8 @@ syndication set.**
 
 ## 3. Needs the owner, not an agent
 
-Blocked on dashboard access; no agent can resolve these from the repo.
+Blocked on dashboard access. **This was verified, not assumed** — see the
+access matrix in section 3b before spending another cycle routing around it.
 
 1. **Cloudflare Web Analytics token.** All 9 pages still ship the literal
    `REPLACE_WITH_CLOUDFLARE_ANALYTICS_TOKEN` in the checked-in HTML, but
@@ -123,7 +124,32 @@ Blocked on dashboard access; no agent can resolve these from the repo.
    this. All three listings have checked-in URLs, so the site works without
    them; a variable would only override.
 6. **Rent figures.** No price appears anywhere in the repo, which is why the
-   property schema has no `offers` block — see section 4.
+   property schema has no `offers` block — see section 4. The owner's mailbox
+   was searched 2026-08-31 and contains **no asking rent** for any of the three
+   properties — only a TurboTenant *rent estimate* for 1332 Tricou (2025-12-07:
+   avg $1,641, range $1,200–$2,400, from 11 comparable 2bd/1.5ba rentals within
+   2 miles). That is a market comp generated for pricing research, **not** an
+   asking rent, and must not be published as one. Treat this avenue as closed.
+
+## 3b. Access matrix — what an agent here can actually reach
+
+Tested 2026-08-31, after the owner asked whether the blocked items could be obtained
+without them. Four paths were executed, not assumed. Recorded so this is not re-derived
+every session.
+
+| Path | Result |
+| --- | --- |
+| Cloudflare MCP (the 5 servers in `.mcp.json`, added PR #9) | **Committed but unauthenticated.** No `mcp__cloudflare*` tools are exposed in the session — `.mcp.json` is configuration only. |
+| Container egress (`curl`) | **Blocked.** `reignpropertyholdings.com` and `*.pages.dev` return `CONNECT tunnel failed, response 403`. No per-host allowlist an agent can widen. |
+| Server-side fetch (`WebFetch`) | **Blocked separately.** Returns `EGRESS_BLOCKED` for the domain — a different code path from `curl`, same answer. |
+| Gmail / Drive MCP | **Live.** Useful for owner-supplied documents and account mail. Searched for rent figures, the analytics token, SendGrid verification and the TurboTenant embed id; only the rent estimate in item 6 was found. |
+
+**The unlock.** Granting the Cloudflare connector (claude.ai → Settings → Connectors)
+would let an agent read Pages environment-variable state, retrieve the analytics token,
+and verify deployments directly — collapsing items 1, 2, 4 and 5 into work that no longer
+needs the owner. Nothing else on that list changes without it.
+
+Confirm the grant worked by checking that `mcp__cloudflare*` tools appear in the session.
 
 ## 3a. Resolved: the domain is served by Pages
 
