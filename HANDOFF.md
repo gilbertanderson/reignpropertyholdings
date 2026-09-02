@@ -95,7 +95,8 @@ syndication set.**
 
 ## 3. Needs the owner, not an agent
 
-Blocked on dashboard access; no agent can resolve these from the repo.
+Blocked on dashboard access. **This was verified, not assumed** — see the
+access matrix in section 3b before spending another cycle routing around it.
 
 1. **Cloudflare Web Analytics token.** Middleware injects
    `CLOUDFLARE_WEB_ANALYTICS_TOKEN` at request time (or strips the beacon when
@@ -123,7 +124,12 @@ Blocked on dashboard access; no agent can resolve these from the repo.
    this. All three listings have checked-in URLs, so the site works without
    them; a variable would only override.
 6. **Rent figures.** No price appears anywhere in the repo, which is why the
-   property schema has no `offers` block — see section 4.
+   property schema has no `offers` block — see section 4. The owner's mailbox
+   was searched 2026-08-31 and contains **no asking rent** for any of the three
+   properties — only a TurboTenant *rent estimate* for 1332 Tricou (2025-12-07:
+   avg $1,641, range $1,200–$2,400, from 11 comparable 2bd/1.5ba rentals within
+   2 miles). That is a market comp generated for pricing research, **not** an
+   asking rent, and must not be published as one. Treat this avenue as closed.
 
 ## 3a. Resolved: the domain is served by Pages
 
@@ -154,6 +160,27 @@ Two things follow:
 - **The "Workers Builds" checks are cosmetic.** They build and deploy two
   services nothing points at. Disconnecting that git integration (section 4)
   would retire a check that has never reflected the live site's health.
+
+## 3b. Access matrix — what an agent here can actually reach
+
+Tested 2026-08-31, after the owner asked whether the blocked items could be obtained
+without them. Four paths were executed, not assumed. Recorded so this is not re-derived
+every session.
+
+| Path | Result |
+| --- | --- |
+| Cloudflare MCP (the 5 servers in `.mcp.json`, added PR #9) | **Committed but unauthenticated.** No `mcp__cloudflare*` tools are exposed in the session — `.mcp.json` is configuration only. |
+| Container egress (`curl`) | **Blocked.** `reignpropertyholdings.com` and `*.pages.dev` return `CONNECT tunnel failed, response 403`. No per-host allowlist an agent can widen. |
+| Server-side fetch (`WebFetch`) | **Blocked separately.** Returns `EGRESS_BLOCKED` for the domain — a different code path from `curl`, same answer. |
+| Gmail MCP | **Live.** Searched for rent figures, the analytics token, SendGrid verification and the TurboTenant embed id; only the rent estimate in item 6 was found. |
+| Google Drive MCP | **Live**, searched independently. `fullText contains 'Tricou'` returns zero files; `'Marrero'` returns only resumes, a 2020 `Act of Sale.pdf` and unrelated PDFs. The one signed lease in the account is a 2018 apartment lease with the owner as *resident*, not a lease for these properties. Confirms Gmail's result. |
+
+**The unlock.** Granting the Cloudflare connector (claude.ai → Settings → Connectors)
+would let an agent read Pages environment-variable state, retrieve the analytics token,
+and verify deployments directly — collapsing items 1, 2, 4 and 5 into work that no longer
+needs the owner. Nothing else on that list changes without it.
+
+Confirm the grant worked by checking that `mcp__cloudflare*` tools appear in the session.
 
 ## 4. Prioritized backlog
 
@@ -204,8 +231,6 @@ Medium and Low. What remains:
   `PORTAL_URL_FALLBACK` is the renter site root. Deep links would need to come
   from the dashboard. Left alone deliberately: collapsing visitor-facing nav
   links is a content decision.
-- **No env templating.** `.dev.vars.example` documents every variable for local
-  `wrangler pages dev`.
 
 ### Fixed since the last handoff
 
@@ -215,7 +240,8 @@ dead end · HEAD returns 302 rather than 405 on both redirect routes ·
 `url` + `potentialAction` in property schema · 508 retyped from `Apartment` to
 `SingleFamilyResidence` · `404.html` · `robots.txt` disallows the redirect
 endpoints · responsive WebP images · minimum-two-tags rule with CI ·
-stale `TURBOTENANT_APPLY_URL_508_AVENUE_E` comment.
+stale `TURBOTENANT_APPLY_URL_508_AVENUE_E` comment · `.dev.vars.example`
+documenting every variable for local `wrangler pages dev`.
 
 ## 5. Furnished stays (Airbnb / VRBO) — shipped
 
