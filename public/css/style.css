@@ -1016,3 +1016,120 @@ input:focus, textarea:focus, select:focus {
 /* Buttons sit on the tinted panel, so give them a solid ground rather than
    letting the tint show through. */
 .stays-links .btn-outline { background: #fff; }
+
+/* --- Furnished-stay availability calendar -------------------------------
+   Rendered by js/calendar.js from the Airbnb/VRBO iCal feeds. Display only:
+   the reservation is still made on the booking platform, so days are not
+   interactive and there is no selection state. */
+.stays-calendar {
+  margin-top: 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px 12px;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cal-nav-status {
+  font-weight: 600;
+  color: var(--ink-700);
+}
+.cal-nav-btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-700);
+  border-radius: 8px;
+  /* Meets the 44px touch-target floor without dominating the panel. */
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.cal-nav-btn:hover:not(:disabled) { background: var(--blue-50); }
+.cal-nav-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* Two months side by side where there's room, stacked on a phone. */
+.cal-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.cal-month-label {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--ink-700);
+}
+
+.cal-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.cal-grid th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-500);
+  padding-bottom: 6px;
+  text-transform: uppercase;
+}
+.cal-day {
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 7px 0;
+  border-radius: 6px;
+}
+.cal-empty { visibility: hidden; }
+
+.cal-day.is-open {
+  background: var(--blue-50);
+  color: var(--ink-900);
+}
+/* Booked days read as struck-through as well as tinted, so the state does
+   not depend on colour alone. */
+.cal-day.is-booked {
+  background: var(--bg-alt);
+  color: var(--ink-300);
+  text-decoration: line-through;
+}
+.cal-day.is-past {
+  color: var(--ink-300);
+  opacity: 0.55;
+}
+.cal-day.is-today {
+  outline: 2px solid var(--blue-600);
+  outline-offset: -2px;
+  font-weight: 700;
+}
+
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 0.8rem;
+  color: var(--ink-500);
+}
+.cal-legend-item { display: flex; align-items: center; gap: 6px; }
+.cal-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.cal-swatch.is-open { background: var(--blue-50); border: 1px solid var(--line); }
+.cal-swatch.is-booked { background: var(--bg-alt); border: 1px solid var(--ink-300); }
+
+.cal-note {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: var(--ink-500);
+  line-height: 1.45;
+}
