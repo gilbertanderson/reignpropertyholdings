@@ -231,4 +231,47 @@ document.addEventListener("DOMContentLoaded", function () {
       line.hidden = false;
     });
   });
+
+  // Leased status for TurboTenant listings, via /api/listing-status. Same
+  // progressive-enhancement shape as the stays block above: hidden/visible
+  // until the API confirms `leased: true`, since TurboTenant has no live
+  // feed to poll (see functions/api/listing-status.js) and the failure mode
+  // of a wrong "Leased" label is worse than no label at all.
+  //
+  // The two element kinds aren't nested — a card's status line and its Apply
+  // button are siblings under different parents (see index.html /
+  // properties.html) — so each carries the slug itself and is looked up
+  // independently, rather than one querying the other as a descendant.
+  var listingStatusBySlug = {};
+
+  var fetchListingStatus = function (slug) {
+    if (!listingStatusBySlug[slug]) {
+      listingStatusBySlug[slug] = fetch(
+        "/api/listing-status?slug=" + encodeURIComponent(slug)
+      )
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .catch(function () { return null; });
+    }
+    return listingStatusBySlug[slug];
+  };
+
+  document.querySelectorAll("[data-listing-status-label]").forEach(function (label) {
+    var slug = label.getAttribute("data-listing-status-label");
+    if (!slug || !window.fetch) return;
+    fetchListingStatus(slug).then(function (data) {
+      if (!data || data.leased !== true) return;
+      label.textContent = label.hasAttribute("data-listing-status-compact")
+        ? "Leased"
+        : "This home is currently leased.";
+      label.hidden = false;
+    });
+  });
+
+  document.querySelectorAll("[data-listing-apply]").forEach(function (apply) {
+    var slug = apply.getAttribute("data-listing-apply");
+    if (!slug || !window.fetch) return;
+    fetchListingStatus(slug).then(function (data) {
+      if (data && data.leased === true) apply.hidden = true;
+    });
+  });
 });

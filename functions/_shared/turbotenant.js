@@ -47,7 +47,15 @@ export const LISTINGS = {
     envKey: "TURBOTENANT_APPLY_URL_508_AVENUE_E",
     page: "/property-508-avenue-e.html",
     url: "https://rental.turbotenant.com/p/508-avenue-e-marrero-la/387c0b42-c89a-492b-b358-91a2555f4d76",
-    available: true,
+    // Leased 2026-09-07. `available: false` reuses the same apply-redirect
+    // behavior as 1332's pre-launch state (Apply goes to the contact form),
+    // but `leased` is a distinct, display-only field: 1332's false means
+    // "not open for applications yet" and must not read as "Leased" on the
+    // card or detail page. Only set `leased` where that specific word is
+    // accurate. /api/listing-status echoes this so the card and detail page
+    // update from this one flag — flip it and redeploy, no HTML edits.
+    available: false,
+    leased: true,
   },
 };
 
