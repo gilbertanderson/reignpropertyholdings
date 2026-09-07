@@ -56,3 +56,5 @@ a file in the repo. `.dev.vars` and `.dev.vars.*` are gitignored;
 - Furnished stays have a **30-night minimum**. New Orleans restricts short-term
   rentals in residential areas, so nothing in the UI may imply nightly booking.
 - Every property card carries at least two tags; `test/tags.test.mjs` enforces it.
+- `HANDOFF.md` is the project record; `HANDOFF-LOCAL.md` covers what becomes
+  possible in an environment with network, browser and OAuth access.
