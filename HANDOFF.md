@@ -10,6 +10,10 @@ but is a dead end, and doing so cost a lot of verification effort.
 
 ---
 
+> **Working locally (Cowork, Cursor, or Claude Code on your machine)?** Read
+> `HANDOFF-LOCAL.md` first. Much of section 3 below is blocked only by this
+> sandbox's lack of network and browser access, and stops being blocked there.
+
 ## 1. The headline finding: TurboTenant has no public API and no MCP server
 
 The owner has TurboTenant **Premium** and asked to "use API or MCP to implement as much
