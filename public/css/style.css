@@ -268,14 +268,25 @@ a { color: inherit; text-decoration: none; }
   margin: 5px 0;
 }
 
+/* The links carry their own 12px of vertical padding, so the panel adds none
+   of its own — stacking both put the first item's text 25px below the divider
+   and the last item's 32px above the panel's bottom edge, top- and
+   bottom-heavy and uneven with each other. With the panel at 0, each end is
+   an even 12px.
+   The sides are set here rather than left to .container (this element carries
+   both classes): a bare `padding` shorthand overrode the container's 24px
+   inset, so the links sat flush against the screen edge while the brand above
+   them stayed inset. */
 .mobile-panel {
   display: none;
   border-top: 1px solid var(--line);
-  padding: 12px 0 20px;
+  padding: 0 24px;
 }
 .mobile-panel a {
   display: block;
-  padding: 12px 4px;
+  /* No side padding: the 24px above is the inset, so the link text lines up
+     with the brand instead of sitting 4px inside it. */
+  padding: 12px 0;
   font-weight: 600;
   color: var(--ink-700);
   border-bottom: 1px solid var(--line);
@@ -573,19 +584,28 @@ section { padding: 72px 0; }
   border-radius: 999px;
 }
 
+/* Vertical padding is symmetric. It used to run 20px top / 24px bottom, which
+   left the Book/Rent row sitting on more air than the specs row at the top —
+   the card read as bottom-heavy once that row replaced the single link. */
 .card-body {
-  padding: 20px 22px 24px;
+  padding: 20px 22px;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+/* Every block below sets both margins explicitly, so the card's rhythm is
+   readable in one place rather than emerging from defaults:
+   20 (body) · 10 · 12 · 12 · 16 (tags→footer) · 16 (footer gap) · 20 (body).
+   Specs and address stay a tight 10px pair; the status line gets an equal
+   12px on each side instead of the old 14-above/10-below, which pulled it
+   toward the tags and away from the address it belongs with. */
 .card-specs {
   display: flex;
   gap: 16px;
   font-weight: 700;
   font-size: 0.95rem;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
   color: var(--ink-900);
 }
 .card-specs span { font-weight: 400; color: var(--ink-500); font-size: 0.85rem; margin-left: 4px; }
@@ -593,13 +613,13 @@ section { padding: 72px 0; }
 .card-address {
   color: var(--ink-700);
   font-size: 0.95rem;
-  margin-bottom: 14px;
+  margin: 0 0 12px;
 }
 
 /* Furnished-stay availability on a card, filled in by main.js from
    /api/availability. Hidden until there's a real date to show. */
 .card-availability {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--blue-700);
@@ -608,7 +628,7 @@ section { padding: 72px 0; }
 .card-tags {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
+  margin: 0 0 16px;
   flex-wrap: wrap;
 }
 
@@ -1161,7 +1181,7 @@ p.card-listing-status {
      slot (address, then status line, then tags), so it needs the same
      bottom margin, not the top margin left over from when it sat after
      the tags instead. */
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 0.85rem;
 }
 
