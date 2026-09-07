@@ -748,7 +748,12 @@ section { padding: 72px 0; }
 .detail-layout > * { min-width: 0; }
 
 @media (max-width: 900px) {
-  .detail-layout { grid-template-columns: 1fr; }
+  /* Stacked, the 48px column gap becomes a row gap and lands on top of the
+     last section's own 36px bottom margin — 84px of dead space between the
+     content and the sidebar card. Drop the doubled-up margin and tighten the
+     gap to one deliberate step. */
+  .detail-layout { grid-template-columns: 1fr; gap: 32px; }
+  .detail-layout > div > .detail-section:last-child { margin-bottom: 0; }
 }
 
 .detail-title-row {
@@ -847,9 +852,12 @@ section { padding: 72px 0; }
   align-items: center;
   gap: 12px;
   padding: 12px 0;
-  border-top: 1px solid var(--line);
 }
-.sidebar-contact-item:first-of-type { border-top: none; }
+/* Rules go BETWEEN contact rows, never above the first one. Keyed off the
+   adjacent sibling rather than :first-of-type, which silently broke when the
+   Book/Rent <div> became the first div in the card and pushed the phone row
+   out of "first of type" — leaving a stray line hugging the buttons. */
+.sidebar-contact-item + .sidebar-contact-item { border-top: 1px solid var(--line); }
 .sidebar-contact-item .icon {
   width: 36px;
   height: 36px;
@@ -870,7 +878,11 @@ section { padding: 72px 0; }
 
 .sidebar-card .btn { margin-top: 18px; }
 
-.sidebar-cta-group { display: flex; gap: 10px; }
+/* The Book/Rent pair. It carries its own bottom margin because what follows
+   it differs per page (a contact row on 1332, the TurboTenant note on the
+   other two) and neither brings a top margin of its own — without this the
+   buttons sit flush against the next element. */
+.sidebar-cta-group { display: flex; gap: 10px; margin: 0 0 20px; }
 .sidebar-cta-group .btn { margin-top: 0; flex: 1; }
 
 /* ---------- Forms ---------- */

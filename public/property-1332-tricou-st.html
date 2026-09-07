@@ -206,11 +206,11 @@
 
       <!-- This home is marked available:false in functions/_shared/turbotenant.js,
            so /apply/1332-tricou-st redirects to the contact form rather than an
-           application. The copy below reflects that: the primary button points
-           at the furnished-stay block, which is the offer that actually exists
-           today, and the contact form is the outline button below it. When the
-           unit reopens for long-term leasing, flip that flag AND restore the
-           "Apply Now" button here, matching the 1334 page. -->
+           application. Rent still links there and stays enabled — the fallback
+           is graceful, and the copy below sets the expectation. Book is the
+           primary button because the furnished stay is the offer that exists
+           today; when the unit reopens for long-term leasing, flip that flag
+           and swap which of the two carries btn-primary. -->
       <aside class="sidebar-card">
         <h3>Interested in this property?</h3>
         <p>Book a furnished stay of 30 nights or more, or apply for the long-term lease &mdash; we&rsquo;ll follow up if it isn&rsquo;t taking long-term applications right now.</p>
