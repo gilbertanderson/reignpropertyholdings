@@ -14,6 +14,26 @@ but is a dead end, and doing so cost a lot of verification effort.
 > `HANDOFF-LOCAL.md` first. Much of section 3 below is blocked only by this
 > sandbox's lack of network and browser access, and stops being blocked there.
 
+## Action items
+
+Owner dashboard work. Nothing below is blocked on an agent. Set secrets on
+the **Pages** project `reignpropertyholdings` (not either Worker), then
+redeploy — existing deployments keep the old empty values. Confirm with
+`GET /api/status` (booleans only). Listing-to-variable mapping for the
+iCal feeds is in `HANDOFF-LOCAL.md` §3.1.
+
+- [x] Merge #38 (wrangler-action pinned to 4.127.1)
+- [ ] Confirm the Pages deploy log for #38 installed `wrangler@4.127.1`, not `3.90.0`
+- [ ] Set `SENDGRID_API_KEY` (do this first — the contact form 500s before SendGrid is called)
+- [ ] Redeploy, then submit the contact form once to confirm `admin@reignpropertyholdings.com` is a verified SendGrid sender
+- [ ] Set `STAYS_ICAL_1332_AIRBNB`, `STAYS_ICAL_1332_VRBO`, `STAYS_ICAL_1334_AIRBNB`, `STAYS_ICAL_1334_VRBO` — re-export fresh `.ics` URLs; check listing ids so 1332 and 1334 are not swapped
+- [ ] Set `CLOUDFLARE_WEB_ANALYTICS_TOKEN`
+- [ ] Redeploy after the iCal and analytics vars; confirm `/api/status` shows `contact: true`, both `stays` true, `analytics: true`
+- [ ] Copy the TurboTenant embed owner id (Account → Settings → Advanced). Do not guess — a wrong hash route renders empty
+- [ ] Asking rents for the property schema `offers` block, if they exist. Do not use the TurboTenant rent *estimate*
+- [ ] Decide: disconnect the Workers git integration (`reignpropertyholdings` and `reignpropertyholdingsllc`). They do not serve the domain
+- [ ] Decide: leave Resident Portal / Pay Rent / Maintenance Request on the TurboTenant root, or replace with dashboard deep links
+
 ## 1. The headline finding: TurboTenant has no public API and no MCP server
 
 The owner has TurboTenant **Premium** and asked to "use API or MCP to implement as much
