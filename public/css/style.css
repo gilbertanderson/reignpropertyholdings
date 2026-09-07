@@ -1106,18 +1106,17 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* Leased status for TurboTenant listings — public/js/main.js, driven by
-   /api/listing-status. Deliberately styled as a callout (bold, warm ink,
-   tinted background) rather than matching .stays-availability's plain bold
-   text: this replaces a call-to-action button, so it needs to read as a
-   status the way the button it displaces would have.
+   /api/listing-status. On the detail page's sidebar this is deliberately
+   styled as a callout (bold, warm ink, tinted background) since it
+   replaces a call-to-action button and needs to read as a status the way
+   the button it displaces would have.
    Uses the --status-bad-* tokens (merged from dark mode, #40) so this
    flips to the dark palette along with everything else rather than
    staying a fixed light-pink box on a dark page. Qualified with the `p.`
    tag prefix so specificity ties (and wins, being later in the file)
    against .sidebar-card p's `color: var(--ink-500)` — a bare class
    selector here was one specificity level short and lost that fight. */
-p.listing-status-line,
-p.card-listing-status {
+p.listing-status-line {
   font-weight: 600;
   color: var(--status-bad-ink);
   background: var(--status-bad-bg);
@@ -1126,10 +1125,16 @@ p.card-listing-status {
   padding: 10px 14px;
   margin: 0 0 16px;
 }
+
+/* The card's compact "Leased" label matches .card-availability's plain
+   text treatment instead of the sidebar callout above, so a leased card
+   reads consistently with the furnished-stay availability line other
+   cards show in the same spot. */
 p.card-listing-status {
-  padding: 6px 10px;
-  font-size: 0.85rem;
   margin: 10px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--blue-700);
 }
 
 .stays-links {
