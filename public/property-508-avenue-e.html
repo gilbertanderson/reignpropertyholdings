@@ -217,9 +217,18 @@
 
       <aside class="sidebar-card">
         <h3>Interested in this property?</h3>
-        <p>Apply online in minutes through TurboTenant, or reach out for current availability, pricing, and to schedule a viewing.</p>
-        <a href="/apply/508-avenue-e" class="btn btn-primary btn-block">Apply Now</a>
-        <p class="powered-by">Applications are handled securely by <strong>TurboTenant</strong>. You&rsquo;ll be taken to their site to finish.</p>
+        <!-- Leased status comes from /api/listing-status, echoing the `leased`
+             flag on 508 in functions/_shared/turbotenant.js. TurboTenant has
+             no API or feed to poll directly — see that file for why. Hidden
+             until confirmed leased; the whole Apply block below hides
+             alongside it via data-listing-apply so a leased home never shows
+             a live "Apply Now" button. -->
+        <p class="listing-status-line" data-listing-status-label="508-avenue-e" hidden></p>
+        <div data-listing-apply="508-avenue-e">
+          <p>Apply online in minutes through TurboTenant, or reach out for current availability, pricing, and to schedule a viewing.</p>
+          <a href="/apply/508-avenue-e" class="btn btn-primary btn-block">Apply Now</a>
+          <p class="powered-by">Applications are handled securely by <strong>TurboTenant</strong>. You&rsquo;ll be taken to their site to finish.</p>
+        </div>
         <div class="sidebar-contact-item">
           <div class="icon">&#128222;</div>
           <div><strong><a href="tel:5043502120">(504) 350-2120</a></strong><span>Call or text</span></div>

@@ -20,6 +20,14 @@
 
 * { box-sizing: border-box; }
 
+/* A `display` set by any class (e.g. .btn's `display: inline-flex`) wins a
+   cascade tie against the UA stylesheet's `[hidden] { display: none }` —
+   same specificity, author sheet loads after the UA one. Discovered when
+   `.hidden = true` on a `.btn` element silently did nothing. This makes the
+   hidden attribute unconditional everywhere, matching what every call site
+   in this codebase already assumes it does. */
+[hidden] { display: none !important; }
+
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
@@ -1005,6 +1013,35 @@ input:focus, textarea:focus, select:focus {
 
 .stays-availability {
   font-weight: 600;
+}
+
+/* Leased status for TurboTenant listings — public/js/main.js, driven by
+   /api/listing-status. Deliberately styled as a callout (bold, warm ink,
+   tinted background) rather than matching .stays-availability's plain bold
+   text: this replaces a call-to-action button, so it needs to read as a
+   status the way the button it displaces would have.
+   Same literal colors as .form-status.error above, not CSS custom
+   properties — this file has no --status-bad-* tokens on its own; those
+   exist only on the separate dark-mode branch, and a var() to an undefined
+   property resolves to nothing rather than erroring, which silently drops
+   the color and background instead of a build failure. Qualified with the
+   `p.` tag prefix so specificity ties (and wins, being later in the file)
+   against .sidebar-card p's `color: var(--ink-500)` — a bare class selector
+   here was one specificity level short and lost that fight. */
+p.listing-status-line,
+p.card-listing-status {
+  font-weight: 600;
+  color: #a12626;
+  background: #fdecec;
+  border: 1px solid #f5c2c2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0 0 16px;
+}
+p.card-listing-status {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  margin: 10px 0 0;
 }
 
 .stays-links {

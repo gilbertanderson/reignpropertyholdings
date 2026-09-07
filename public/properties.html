@@ -143,9 +143,15 @@
             <span class="tag">Renovated</span>
             <span class="tag">Off-Street Parking</span>
           </div>
+          <!-- Leased status comes from /api/listing-status, which echoes the
+               `leased` flag on 508 in functions/_shared/turbotenant.js — see
+               that file for why this can't come from TurboTenant directly.
+               Hidden until confirmed leased; the Apply link hides alongside
+               it via [data-listing-apply] so the card never shows both. -->
+          <p class="card-listing-status" data-listing-status-label="508-avenue-e" data-listing-status-compact hidden></p>
           <div class="card-footer">
             <a href="property-508-avenue-e.html" class="card-link">View details &rarr;</a>
-            <a href="/apply/508-avenue-e" class="btn btn-outline btn-sm">Apply</a>
+            <a href="/apply/508-avenue-e" class="btn btn-outline btn-sm" data-listing-apply="508-avenue-e">Apply</a>
           </div>
         </div>
       </article>
