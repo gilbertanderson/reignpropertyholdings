@@ -48,14 +48,15 @@ gives you a site with no Functions, so availability, contact and status all
 silently do nothing.
 
 **Connect the Cloudflare MCP servers.** `.mcp.json` already declares five of
-them; they just need authorising.
+them; they just need authorising. In Cursor the Cloudflare plugin is the
+path — Builds, Bindings and Observability were authenticated 2026-09-06.
 
-- *Cursor* — Settings → MCP → add, or copy `.mcp.json` into `.cursor/mcp.json`
+- *Cursor* — Settings → MCP / the Cloudflare plugin
 - *Claude Code locally* — `/mcp` in-session to trigger the OAuth flow
 - *claude.ai (incl. Cowork)* — Settings → Connectors → add custom connector
 
-The two that matter most are `bindings` (reads Pages environment variables) and
-`builds` (reads Workers build logs).
+`builds` reads Workers Builds logs (item 3.2 is done). `bindings` is D1/KV/R2
+only — it cannot list Pages Function secrets. Use `GET /api/status` for those.
 
 ---
 
@@ -103,29 +104,20 @@ Verify at `/api/status` — booleans only, never values:
 
 Then open a Tricou property page and scroll to **Furnished stays**.
 
-### 3.2 Settle the wrangler / `main` build failures
+### 3.2 Wrangler / `main` build failures — settled 2026-09-06
 
-Two attempts to align build config were reverted because both Workers Builds
-checks went red reproducibly — green on `main`'s tip, red on an otherwise
-identical PR head (#9, and #31). The cause was never established because **the
-build log is dashboard-only** and the remote session could not read it.
+Both logs were read via the Cloudflare Builds MCP. Causes, not guesses:
 
-Locally this is no longer a mystery, it is one log away. Open the failing build
-under Workers & Pages → the service → Builds, or use the `builds` MCP server.
+- **#31** (pin wrangler to 3.90.0): `Missing entry-point`. wrangler 3.90.0
+  cannot read `wrangler.jsonc` (JSON/JSONC starts at 3.91.0), so it never
+  saw the assets-only config. `deploy.yml` now pins `wrangler-action` **up**
+  to 4.127.1 to match the lockfile. Do not pin back down.
+- **#9** (add `main: ./dist/worker/index.js`): that file was missing because
+  Workers Builds `buildCommand` is empty. Do not re-add `main` unless the
+  build command runs `npm run build` first.
 
-The two candidate causes recorded in `HANDOFF.md` §4:
-
-1. `dist/worker/index.js` missing at deploy time — the configured build command
-   may not run `npm run build`
-2. `compatibility_date: "2026-08-29"` in `wrangler.jsonc` being newer than the
-   wrangler/workerd in use (a local workerd rejected that exact date under
-   wrangler 4; `wrangler-action` installs 3.90.0, `package.json` declares
-   ^4.127.1)
-
-**Do not re-attempt the same pin blind.** Read the log first. Note also that
-neither Workers service is connected to the live domain — section 3a: the domain
-CNAMEs to the Pages project — so these checks are cosmetic and there is no
-urgency, only curiosity and tidiness.
+Neither Worker serves the live domain (HANDOFF.md §3a). The remaining call
+is whether to disconnect the Workers git integration.
 
 ### 3.3 The remaining dashboard items
 
