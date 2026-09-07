@@ -16,6 +16,74 @@
   --shadow-md: 0 4px 10px rgba(16, 24, 40, 0.08), 0 2px 4px rgba(16, 24, 40, 0.06);
   --shadow-lg: 0 12px 28px rgba(16, 24, 40, 0.14);
   --container: 1180px;
+
+  /* Raised surfaces — cards, header, inputs. Split out from --bg so dark mode
+     can lift them off the page background rather than painting everything flat. */
+  --surface: #ffffff;
+  --status-ok-bg: #eafaf0;
+  --status-ok-line: #b7ebc9;
+  --status-ok-ink: #146c3f;
+  --status-bad-bg: #fdecec;
+  --status-bad-line: #f5c2c2;
+  --status-bad-ink: #a12626;
+
+  color-scheme: light;
+}
+
+/* Dark theme.
+   Three states: with no data-theme attribute the OS setting decides, and an
+   explicit data-theme on <html> overrides it in either direction. The media
+   query is guarded against data-theme="light" so choosing light on a
+   dark-set OS actually holds. Only tokens are redefined — every rule below
+   this block styles both themes. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --blue-600: #5b9bff;
+    --blue-700: #7fb2ff;
+    --blue-50: #16263f;
+    --ink-900: #e6e8eb;
+    --ink-700: #b9bfc7;
+    --ink-500: #939aa3;
+    --ink-300: #6e757e;
+    --line: #2a313a;
+    --bg: #0f141a;
+    --bg-alt: #151b22;
+    --surface: #171e26;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.55);
+    --status-ok-bg: #10281a;
+    --status-ok-line: #1f5236;
+    --status-ok-ink: #7ee0a6;
+    --status-bad-bg: #2b1416;
+    --status-bad-line: #5c2429;
+    --status-bad-ink: #f5a6a6;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --blue-600: #5b9bff;
+  --blue-700: #7fb2ff;
+  --blue-50: #16263f;
+  --ink-900: #e6e8eb;
+  --ink-700: #b9bfc7;
+  --ink-500: #939aa3;
+  --ink-300: #6e757e;
+  --line: #2a313a;
+  --bg: #0f141a;
+  --bg-alt: #151b22;
+  --surface: #171e26;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.55);
+  --status-ok-bg: #10281a;
+  --status-ok-line: #1f5236;
+  --status-ok-ink: #7ee0a6;
+  --status-bad-bg: #2b1416;
+  --status-bad-line: #5c2429;
+  --status-bad-ink: #f5a6a6;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -80,15 +148,17 @@ a { color: inherit; text-decoration: none; }
 .btn-primary:hover { background: var(--blue-700); }
 
 .btn-outline {
-  background: #fff;
+  background: var(--surface);
   color: var(--ink-900);
   border-color: var(--line);
 }
 .btn-outline:hover { border-color: var(--ink-300); background: var(--bg-alt); }
 
 .btn-white {
+  /* Always sits on the dark CTA band, so ground and ink are both fixed:
+     --blue-700 lightens in dark mode and would go pale-on-white. */
   background: #fff;
-  color: var(--blue-700);
+  color: #0b5cd1;
 }
 .btn-white:hover { background: var(--blue-50); }
 
@@ -102,7 +172,7 @@ a { color: inherit; text-decoration: none; }
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 
@@ -391,7 +461,7 @@ section { padding: 72px 0; }
 }
 
 .value-card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 28px;
@@ -440,7 +510,7 @@ section { padding: 72px 0; }
 }
 
 .card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
@@ -733,7 +803,7 @@ section { padding: 72px 0; }
 .sidebar-card {
   position: sticky;
   top: 96px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 26px;
@@ -808,7 +878,7 @@ input, textarea, select {
   font-size: 0.95rem;
   font-family: inherit;
   color: var(--ink-900);
-  background: #fff;
+  background: var(--surface);
 }
 input:focus, textarea:focus, select:focus {
   outline: none;
@@ -833,14 +903,14 @@ input:focus, textarea:focus, select:focus {
 }
 .form-status.visible { display: block; }
 .form-status.success {
-  background: #eafaf0;
-  border: 1px solid #b7ebc9;
-  color: #146c3f;
+  background: var(--status-ok-bg);
+  border: 1px solid var(--status-ok-line);
+  color: var(--status-ok-ink);
 }
 .form-status.error {
-  background: #fdecec;
-  border: 1px solid #f5c2c2;
-  color: #a12626;
+  background: var(--status-bad-bg);
+  border: 1px solid var(--status-bad-line);
+  color: var(--status-bad-ink);
 }
 
 /* ---------- CTA band ---------- */
@@ -895,6 +965,26 @@ input:focus, textarea:focus, select:focus {
   gap: 10px;
   font-size: 0.82rem;
 }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* The footer is a fixed dark panel in both themes (--surface flips, this
+     doesn't), so the toggle's own colours are fixed rather than tokenized. */
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  line-height: 1.3;
+}
+.theme-toggle:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.theme-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.theme-toggle-icon { font-size: 0.95rem; line-height: 1; }
 
 /* ---------- Misc ---------- */
 
@@ -960,7 +1050,7 @@ input:focus, textarea:focus, select:focus {
   padding: 18px 20px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--surface);
   color: var(--ink-900);
   box-shadow: var(--shadow-sm);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -1020,20 +1110,18 @@ input:focus, textarea:focus, select:focus {
    tinted background) rather than matching .stays-availability's plain bold
    text: this replaces a call-to-action button, so it needs to read as a
    status the way the button it displaces would have.
-   Same literal colors as .form-status.error above, not CSS custom
-   properties — this file has no --status-bad-* tokens on its own; those
-   exist only on the separate dark-mode branch, and a var() to an undefined
-   property resolves to nothing rather than erroring, which silently drops
-   the color and background instead of a build failure. Qualified with the
-   `p.` tag prefix so specificity ties (and wins, being later in the file)
-   against .sidebar-card p's `color: var(--ink-500)` — a bare class selector
-   here was one specificity level short and lost that fight. */
+   Uses the --status-bad-* tokens (merged from dark mode, #40) so this
+   flips to the dark palette along with everything else rather than
+   staying a fixed light-pink box on a dark page. Qualified with the `p.`
+   tag prefix so specificity ties (and wins, being later in the file)
+   against .sidebar-card p's `color: var(--ink-500)` — a bare class
+   selector here was one specificity level short and lost that fight. */
 p.listing-status-line,
 p.card-listing-status {
   font-weight: 600;
-  color: #a12626;
-  background: #fdecec;
-  border: 1px solid #f5c2c2;
+  color: var(--status-bad-ink);
+  background: var(--status-bad-bg);
+  border: 1px solid var(--status-bad-line);
   border-radius: 8px;
   padding: 10px 14px;
   margin: 0 0 16px;
@@ -1052,7 +1140,7 @@ p.card-listing-status {
 }
 /* Buttons sit on the tinted panel, so give them a solid ground rather than
    letting the tint show through. */
-.stays-links .btn-outline { background: #fff; }
+.stays-links .btn-outline { background: var(--surface); }
 
 /* --- Furnished-stay availability calendar -------------------------------
    Rendered by js/calendar.js from the Airbnb/VRBO iCal feeds. Display only:
@@ -1060,7 +1148,7 @@ p.card-listing-status {
    interactive and there is no selection state. */
 .stays-calendar {
   margin-top: 18px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 14px 16px 12px;
@@ -1079,7 +1167,7 @@ p.card-listing-status {
 }
 .cal-nav-btn {
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--surface);
   color: var(--ink-700);
   border-radius: 8px;
   /* Meets the 44px touch-target floor without dominating the panel. */
