@@ -12,6 +12,9 @@ that the remote session could not.
 Start with `CLAUDE.md` either way — it carries the standing rules, and the first
 one (stop and write a handoff before context runs out) is why this file exists.
 
+Owner action items (secrets, redeploy, account decisions) live as a checkbox
+list at the top of `HANDOFF.md` under **Action items**.
+
 ---
 
 ## 1. What is different in a local environment
