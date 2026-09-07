@@ -132,6 +132,7 @@ a { color: inherit; text-decoration: none; }
   border-radius: 999px;
   font-weight: 600;
   font-size: 0.95rem;
+  font-family: inherit;
   border: 1px solid transparent;
   cursor: pointer;
   transition: transform 0.05s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -139,6 +140,16 @@ a { color: inherit; text-decoration: none; }
 }
 
 .btn:active { transform: translateY(1px); }
+
+/* 508 Avenue E has no furnished-stay listing (see functions/_shared/stays.js),
+   so its Book button is a real <button disabled> rather than a link to a
+   #stays section that doesn't exist there. */
+.btn:disabled,
+.btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 .btn-primary {
   background: var(--blue-600);
@@ -614,9 +625,21 @@ section { padding: 72px 0; }
 .card-footer {
   margin-top: auto;
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-footer-top {
+  display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
+.card-footer-actions {
+  display: flex;
+  gap: 8px;
+}
+.card-footer-actions .btn { flex: 1; }
 
 .card-link {
   font-weight: 700;
@@ -846,6 +869,9 @@ section { padding: 72px 0; }
 .sidebar-contact-item span { font-size: 0.82rem; color: var(--ink-500); }
 
 .sidebar-card .btn { margin-top: 18px; }
+
+.sidebar-cta-group { display: flex; gap: 10px; }
+.sidebar-cta-group .btn { margin-top: 0; flex: 1; }
 
 /* ---------- Forms ---------- */
 
