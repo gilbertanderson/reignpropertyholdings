@@ -17,6 +17,9 @@ TURBOTENANT_APPLY_URL=
 TURBOTENANT_APPLY_URL_1332_TRICOU_ST=
 TURBOTENANT_APPLY_URL_1334_TRICOU_ST=
 TURBOTENANT_APPLY_URL_508_AVENUE_E=
+# Lease status for 508 (true/false). Unset = use checked-in available flag.
+# TurboTenant has no vacancy API — flip this (and redeploy) when the unit opens.
+TURBOTENANT_AVAILABLE_508_AVENUE_E=
 TURBOTENANT_PORTAL_URL=
 
 # --- Furnished stays iCal feeds (optional) ---

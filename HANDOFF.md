@@ -64,6 +64,13 @@ found during research. **Do not build on it** — it is unsupported, unauthentic
 use, and using it would likely breach their ToS. Same for the third-party Apify TurboTenant
 scraper.
 
+### Lease status on this site (508 Avenue E)
+
+The card/detail **"Leased" / "Available"** line is **not** live TurboTenant sync. It reads
+`functions/_shared/turbotenant.js` (`available` flag) via `GET /api/listings`, with an
+optional Pages override `TURBOTENANT_AVAILABLE_508_AVENUE_E` (`true`/`false`). Redeploy
+after changing the env var. Flip the checked-in flag or the env when the unit reopens.
+
 ---
 
 ## 2. What IS real and buildable

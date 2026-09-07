@@ -10,10 +10,13 @@
 //   TURBOTENANT_APPLY_URL_1332_TRICOU_ST   Per-listing application link
 //   TURBOTENANT_APPLY_URL_1334_TRICOU_ST   Per-listing application link
 //   TURBOTENANT_APPLY_URL_508_AVENUE_E     Per-listing application link
+//   TURBOTENANT_AVAILABLE_508_AVENUE_E     Optional true/false override for 508 lease status
 //   TURBOTENANT_PORTAL_URL                 Resident portal login (optional)
 //
-// Any listing without a configured link falls back to the contact form, so a
-// missing variable never produces a dead "Apply" button.
+// Lease "available" is a checked-in flag (plus optional env override). TurboTenant
+// has no public vacancy API — flipping leased ↔ open is manual. Any listing
+// without a configured apply link falls back to the contact form, so a missing
+// variable never produces a dead "Apply" button.
 
 export const PORTAL_URL_FALLBACK = "https://rental.turbotenant.com/";
 
@@ -45,11 +48,46 @@ export const LISTINGS = {
   "508-avenue-e": {
     name: "508 Avenue E",
     envKey: "TURBOTENANT_APPLY_URL_508_AVENUE_E",
+    // Flip without a code change: set TURBOTENANT_AVAILABLE_508_AVENUE_E=true
+    // on Pages (then redeploy) when the unit reopens for applications.
+    availableEnvKey: "TURBOTENANT_AVAILABLE_508_AVENUE_E",
     page: "/property-508-avenue-e.html",
     url: "https://rental.turbotenant.com/p/508-avenue-e-marrero-la/387c0b42-c89a-492b-b358-91a2555f4d76",
-    available: true,
+    // Currently leased — Apply goes to the contact form; UI shows "Leased".
+    available: false,
   },
 };
+
+// Parses optional env overrides like TURBOTENANT_AVAILABLE_508_AVENUE_E.
+// Returns null when unset/unrecognized so the checked-in flag wins.
+export function parseAvailableFlag(value) {
+  if (value == null) return null;
+  const s = value.toString().trim().toLowerCase();
+  if (!s) return null;
+  if (s === "1" || s === "true" || s === "yes" || s === "on") return true;
+  if (s === "0" || s === "false" || s === "no" || s === "off") return false;
+  return null;
+}
+
+export function isListingAvailable(env, slug) {
+  const listing = slug ? LISTINGS[slug] : null;
+  if (!listing) return false;
+  if (listing.availableEnvKey) {
+    const override = parseAvailableFlag(env?.[listing.availableEnvKey]);
+    if (override !== null) return override;
+  }
+  return listing.available !== false;
+}
+
+// Per-slug lease status for /api/listings and the card/detail "Leased" line.
+export function listingAvailability(env) {
+  return Object.fromEntries(
+    Object.keys(LISTINGS).map((slug) => [
+      slug,
+      { available: isListingAvailable(env, slug) },
+    ])
+  );
+}
 
 export function isTurboTenantUrl(value) {
   if (!value) return false;
@@ -74,14 +112,14 @@ export function resolveApplyUrl(env, slug) {
   // URL, then the account-wide env var. A listing marked unavailable takes
   // only its own env var — it shouldn't quietly fall through to a generic
   // application for a home that isn't open.
-  const candidates =
-    listing && listing.available === false
-      ? [env[listing.envKey]]
-      : [
-          listing && env[listing.envKey],
-          listing && listing.url,
-          env.TURBOTENANT_APPLY_URL,
-        ];
+  const open = listing ? isListingAvailable(env, slug) : true;
+  const candidates = !open
+    ? [env[listing.envKey]]
+    : [
+        listing && env[listing.envKey],
+        listing && listing.url,
+        env.TURBOTENANT_APPLY_URL,
+      ];
   for (const candidate of candidates) {
     if (isTurboTenantUrl(candidate)) return candidate.toString().trim();
   }

@@ -112,40 +112,68 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Property gallery: click a thumbnail to swap the main photo.
+  // Property gallery: Redfin-style collage + room-labeled thumbs.
   //
-  // The hero is a <picture>, so the <source> has to be updated too — a
-  // matching source outranks the <img> src, and setting src alone would leave
-  // the previous photo on screen in every browser that supports webp.
+  // The selected photo lives in .gallery-main (<picture>), so the <source>
+  // has to be updated too — a matching source outranks the <img> src.
   var galleries = document.querySelectorAll("[data-gallery]");
   galleries.forEach(function (gallery) {
     var main = gallery.querySelector(".gallery-main img");
     var source = gallery.querySelector(".gallery-main [data-gallery-source]");
     var thumbs = gallery.querySelectorAll(".gallery-thumbs button");
+    var collageTiles = gallery.querySelectorAll(
+      ".gallery-collage [data-full]"
+    );
+    var rooms = gallery.querySelector("[data-gallery-rooms]");
+    var seeAll = gallery.querySelector("[data-gallery-see-all]");
+
+    function showPhoto(fullSrc, fullSrcset, alt) {
+      if (!main || !fullSrc) return;
+      gallery.classList.add("is-open");
+      if (source && fullSrcset) source.setAttribute("srcset", fullSrcset);
+      main.setAttribute("src", fullSrc);
+      main.setAttribute("alt", alt || "");
+    }
 
     function focusThumb(btn) {
       thumbs.forEach(function (b) { b.classList.remove("active"); });
-      btn.classList.add("active");
-      btn.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      if (btn && btn.closest(".gallery-thumbs")) btn.classList.add("active");
+    }
+
+    function activateFromButton(btn) {
+      showPhoto(
+        btn.getAttribute("data-full"),
+        btn.getAttribute("data-full-srcset"),
+        btn.getAttribute("data-alt")
+      );
+      // Prefer the matching room thumb when a collage tile was clicked.
+      var full = btn.getAttribute("data-full");
+      var match = null;
+      thumbs.forEach(function (t) {
+        if (t.getAttribute("data-full") === full) match = t;
+      });
+      focusThumb(match || (btn.closest(".gallery-thumbs") ? btn : null));
+      if (main) {
+        main.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
     }
 
     thumbs.forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var fullSrc = btn.getAttribute("data-full");
-        var fullSrcset = btn.getAttribute("data-full-srcset");
-        var alt = btn.getAttribute("data-alt");
-        if (main && fullSrc) {
-          if (source && fullSrcset) source.setAttribute("srcset", fullSrcset);
-          main.setAttribute("src", fullSrc);
-          main.setAttribute("alt", alt || "");
-        }
-        focusThumb(btn);
+        activateFromButton(btn);
       });
     });
 
-    var active = gallery.querySelector(".gallery-thumbs button.active");
-    if (active) {
-      active.scrollIntoView({ inline: "center", block: "nearest", behavior: "auto" });
+    collageTiles.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activateFromButton(btn);
+      });
+    });
+
+    if (seeAll && rooms) {
+      seeAll.addEventListener("click", function () {
+        rooms.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
     }
   });
 
@@ -227,6 +255,44 @@ document.addEventListener("DOMContentLoaded", function () {
         from,
         todayUtc,
         line.hasAttribute("data-stays-compact")
+      );
+      line.hidden = false;
+    });
+  });
+
+  // Long-term lease status (e.g. 508 Avenue E "Leased" / "Available").
+  // Sourced from /api/listings — checked-in TurboTenant flags + optional
+  // Pages env override. Not a live TurboTenant vacancy feed.
+  var leaseBlocks = document.querySelectorAll("[data-lease]");
+  var listingsPromise = null;
+
+  var fetchListings = function () {
+    if (!listingsPromise) {
+      listingsPromise = fetch("/api/listings")
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .catch(function () { return null; });
+    }
+    return listingsPromise;
+  };
+
+  var leaseText = function (available, compact) {
+    if (compact) return available ? "Available" : "Leased";
+    return available ? "Available to lease." : "Currently leased.";
+  };
+
+  leaseBlocks.forEach(function (block) {
+    var slug = block.getAttribute("data-lease");
+    var line = block.matches("[data-lease-availability]")
+      ? block
+      : block.querySelector("[data-lease-availability]");
+    if (!slug || !line || !window.fetch) return;
+
+    fetchListings().then(function (data) {
+      var entry = data && data.listings && data.listings[slug];
+      if (!entry || typeof entry.available !== "boolean") return;
+      line.textContent = leaseText(
+        entry.available,
+        line.hasAttribute("data-lease-compact")
       );
       line.hidden = false;
     });
