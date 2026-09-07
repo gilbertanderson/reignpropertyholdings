@@ -14,6 +14,26 @@ but is a dead end, and doing so cost a lot of verification effort.
 > `HANDOFF-LOCAL.md` first. Much of section 3 below is blocked only by this
 > sandbox's lack of network and browser access, and stops being blocked there.
 
+## Action items
+
+Owner dashboard work. Nothing below is blocked on an agent. Set secrets on
+the **Pages** project `reignpropertyholdings` (not either Worker), then
+redeploy — existing deployments keep the old empty values. Confirm with
+`GET /api/status` (booleans only). Listing-to-variable mapping for the
+iCal feeds is in `HANDOFF-LOCAL.md` §3.1.
+
+- [x] Merge #38 (wrangler-action pinned to 4.127.1)
+- [ ] Confirm the Pages deploy log for #38 installed `wrangler@4.127.1`, not `3.90.0`
+- [ ] Set `SENDGRID_API_KEY` (do this first — the contact form 500s before SendGrid is called)
+- [ ] Redeploy, then submit the contact form once to confirm `admin@reignpropertyholdings.com` is a verified SendGrid sender
+- [ ] Set `STAYS_ICAL_1332_AIRBNB`, `STAYS_ICAL_1332_VRBO`, `STAYS_ICAL_1334_AIRBNB`, `STAYS_ICAL_1334_VRBO` — re-export fresh `.ics` URLs; check listing ids so 1332 and 1334 are not swapped
+- [ ] Set `CLOUDFLARE_WEB_ANALYTICS_TOKEN`
+- [ ] Redeploy after the iCal and analytics vars; confirm `/api/status` shows `contact: true`, both `stays` true, `analytics: true`
+- [ ] Copy the TurboTenant embed owner id (Account → Settings → Advanced). Do not guess — a wrong hash route renders empty
+- [ ] Asking rents for the property schema `offers` block, if they exist. Do not use the TurboTenant rent *estimate*
+- [ ] Decide: disconnect the Workers git integration (`reignpropertyholdings` and `reignpropertyholdingsllc`). They do not serve the domain
+- [ ] Decide: leave Resident Portal / Pay Rent / Maintenance Request on the TurboTenant root, or replace with dashboard deep links
+
 ## 1. The headline finding: TurboTenant has no public API and no MCP server
 
 The owner has TurboTenant **Premium** and asked to "use API or MCP to implement as much
@@ -173,18 +193,17 @@ every session.
 
 | Path | Result |
 | --- | --- |
-| Cloudflare MCP (the 5 servers in `.mcp.json`, added PR #9) | **Committed but unauthenticated.** No `mcp__cloudflare*` tools are exposed in the session — `.mcp.json` is configuration only. |
+| Cloudflare MCP (the 5 servers in `.mcp.json`, added PR #9) | **Cursor plugin authenticated 2026-09-06** (Builds, Bindings, Observability). Builds can read Workers Builds logs. Bindings is D1/KV/R2 only — it cannot list Pages Function secrets; use `GET /api/status` for those. |
 | Container egress (`curl`) | **Blocked.** `reignpropertyholdings.com` and `*.pages.dev` return `CONNECT tunnel failed, response 403`. No per-host allowlist an agent can widen. |
 | Server-side fetch (`WebFetch`) | **Blocked separately.** Returns `EGRESS_BLOCKED` for the domain — a different code path from `curl`, same answer. |
 | Gmail MCP | **Live.** Searched for rent figures, the analytics token, SendGrid verification and the TurboTenant embed id; only the rent estimate in item 6 was found. |
 | Google Drive MCP | **Live**, searched independently. `fullText contains 'Tricou'` returns zero files; `'Marrero'` returns only resumes, a 2020 `Act of Sale.pdf` and unrelated PDFs. The one signed lease in the account is a 2018 apartment lease with the owner as *resident*, not a lease for these properties. Confirms Gmail's result. |
 
-**The unlock.** Granting the Cloudflare connector (claude.ai → Settings → Connectors)
-would let an agent read Pages environment-variable state, retrieve the analytics token,
-and verify deployments directly — collapsing items 1, 2, 4 and 5 into work that no longer
-needs the owner. Nothing else on that list changes without it.
-
-Confirm the grant worked by checking that `mcp__cloudflare*` tools appear in the session.
+**The unlock.** The Cursor Cloudflare plugin is now authenticated (Builds /
+Bindings / Observability). That closed the wrangler-log item in section 4.
+It does **not** expose Pages Function secrets — Bindings is D1/KV/R2 — so
+items 1–5 still need values set in the Pages dashboard (or `.dev.vars` +
+`npm run cf:secrets:push`). Confirm they landed with `GET /api/status`.
 
 ## 4. Prioritized backlog
 
@@ -199,35 +218,30 @@ Medium and Low. What remains:
   every `/apply/*`, `/portal` and `/api/*` request if anyone or anything ever
   does point traffic at them, but it is no longer urgent.
   `package.json` compiles the Pages Functions to `./dist/worker`, and
-  `wrangler.jsonc` has no `main` pointing at it. Adding `main` fixes it
-  locally but **turned both Workers Builds checks red** — and that is not
-  the historical branch flakiness, since #8's own branch head was green.
-  Cause undetermined between (a) `dist/worker/index.js` missing at deploy
-  time, i.e. the configured build command does not run `npm run build`, and
-  (b) bundling a Worker validating `compatibility_date: 2026-08-29`, which
-  an assets-only deploy skips and which a local workerd rejected as too new.
-  The build log is dashboard-only. Do not re-add `main` blind — and given
-  section 3a, there is no urgency to.
+  `wrangler.jsonc` has no `main` pointing at it. Adding `main` (#9, commit
+  `dacfa84`) turned both Workers Builds checks red. **Log confirmed
+  2026-09-06** (build `11bff9ef-cd57-44e6-9944-e2c746a5bc66`, wrangler
+  4.127.1): `The entry-point file at "dist/worker/index.js" was not found.`
+  Workers Builds `buildCommand` is empty; `deployCommand` is
+  `npx wrangler versions upload`. Do not re-add `main` unless that build
+  command runs `npm run build` first. The `compatibility_date` guess was
+  not the cause.
 - **Two deploy paths run on every push.** Actions runs `wrangler pages deploy`;
-  Workers Builds runs `versions upload`/`deploy`. Both ship the same site to
-  different places. Recommendation is to keep Pages and disconnect the Workers
+  Workers Builds runs `npx wrangler versions upload` (no build step). Both
+  ship the same site to different places. Green Workers Builds on current
+  tip upload `public/` as assets and produce a ~0.31 KiB assets-only Worker
+  — no Functions. Recommendation is to keep Pages and disconnect the Workers
   git integration, which also retires the historically red check — but it is
   the owner's call.
-- **Wrangler version split.** `wrangler-action` installs **3.90.0**;
-  `package.json` declares **^4.127.1**. Two majors build this site depending on
-  path.
-  **Attempted and reverted 2026-08-31** (#31): pinning both to 3.90.0 broke
-  both Workers Builds checks reproducibly — green on `main`'s tip, red on the
-  otherwise-identical PR head. No log text was visible via the API to confirm
-  why. Strongest guess, unverified: `wrangler.jsonc`'s
-  `compatibility_date: "2026-08-29"` may be too new for wrangler 3.90.0 to
-  accept — a local workerd earlier this session rejected that exact date
-  under wrangler 4 for being newer than the binary supported, and 3.90.0 is
-  older still. These checks don't reflect the live site either way (section
-  3a), so there's no urgency, but don't re-attempt the same pin blind — get
-  the build log first, or try pinning both to something newer than 4.24.3
-  instead (npm audit's own trail from 3.90.0 leads there, see the commit this
-  entry replaces for the detail).
+- ~~**Wrangler version split.**~~ *Closed 2026-09-06.* `deploy.yml` now pins
+  `wrangler-action` to **4.127.1**, matching `package-lock.json`. The
+  implicit default was 3.90.0.
+  **#31 log** (build `71240eaf-39ea-4589-8873-798b51ff71de`, wrangler
+  3.90.0): `Missing entry-point`. wrangler JSON/JSONC support starts at
+  **3.91.0**; 3.90.0 never read `wrangler.jsonc`, so it never saw the
+  assets-only config and demanded `main`. That is why main's tip stayed
+  green (lockfile wrangler 4.127.1) while the pin-down PR went red. Do
+  not pin back to 3.90.0.
 - **Property schema has no `offers`.** Needs rent figures (section 3.6).
   `url` and `potentialAction` are already there.
 - **Three footer links, one destination.** Resident Portal, Pay Rent and
