@@ -238,10 +238,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // feed to poll (see functions/api/listing-status.js) and the failure mode
   // of a wrong "Leased" label is worse than no label at all.
   //
-  // The two element kinds aren't nested — a card's status line and its Apply
-  // button are siblings under different parents (see index.html /
-  // properties.html) — so each carries the slug itself and is looked up
-  // independently, rather than one querying the other as a descendant.
+  // This only drives the status text now. The Rent button is always shown
+  // and always links through TurboTenant regardless of leased/available
+  // state — /apply/<slug> already falls back to the contact form gracefully
+  // when a listing isn't taking applications, so there's no broken link to
+  // guard against by hiding the button.
   var listingStatusBySlug = {};
 
   var fetchListingStatus = function (slug) {
@@ -264,14 +265,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ? "Leased"
         : "This home is currently leased.";
       label.hidden = false;
-    });
-  });
-
-  document.querySelectorAll("[data-listing-apply]").forEach(function (apply) {
-    var slug = apply.getAttribute("data-listing-apply");
-    if (!slug || !window.fetch) return;
-    fetchListingStatus(slug).then(function (data) {
-      if (data && data.leased === true) apply.hidden = true;
     });
   });
 });

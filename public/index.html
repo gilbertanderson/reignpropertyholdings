@@ -154,8 +154,13 @@
             <span class="tag">Off-Street Parking</span>
           </div>
           <div class="card-footer">
-            <a href="property-1332-tricou-st.html" class="card-link">View details &rarr;</a>
-            <a href="property-1332-tricou-st.html#stays" class="btn btn-outline btn-sm">Book a stay</a>
+            <div class="card-footer-top">
+              <a href="property-1332-tricou-st.html" class="card-link">View details &rarr;</a>
+            </div>
+            <div class="card-footer-actions">
+              <a href="property-1332-tricou-st.html#stays" class="btn btn-outline btn-sm">Book</a>
+              <a href="/apply/1332-tricou-st" class="btn btn-outline btn-sm">Rent</a>
+            </div>
           </div>
         </div>
       </article>
@@ -175,18 +180,25 @@
           <!-- Leased status comes from /api/listing-status, which echoes the
                `leased` flag on 508 in functions/_shared/turbotenant.js — see
                that file for why this can't come from TurboTenant directly.
-               Hidden until confirmed leased; the Apply link hides alongside
-               it via [data-listing-apply] so the card never shows both.
-               Positioned before .card-tags, matching where .card-availability
-               sits on the Tricou cards (address, then status, then tags). -->
+               Hidden until confirmed leased. Positioned before .card-tags,
+               matching where .card-availability sits on the Tricou cards
+               (address, then status, then tags). -->
           <p class="card-listing-status" data-listing-status-label="508-avenue-e" data-listing-status-compact hidden></p>
           <div class="card-tags">
             <span class="tag">Renovated</span>
             <span class="tag">Off-Street Parking</span>
           </div>
           <div class="card-footer">
-            <a href="property-508-avenue-e.html" class="card-link">View details &rarr;</a>
-            <a href="/apply/508-avenue-e" class="btn btn-outline btn-sm" data-listing-apply="508-avenue-e">Apply</a>
+            <div class="card-footer-top">
+              <a href="property-508-avenue-e.html" class="card-link">View details &rarr;</a>
+            </div>
+            <div class="card-footer-actions">
+              <!-- 508 has no furnished-stay listing at all (see
+                   functions/_shared/stays.js) — permanently disabled, not
+                   conditionally hidden. -->
+              <button type="button" class="btn btn-outline btn-sm" disabled>Book</button>
+              <a href="/apply/508-avenue-e" class="btn btn-outline btn-sm">Rent</a>
+            </div>
           </div>
         </div>
       </article>
