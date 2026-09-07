@@ -243,6 +243,36 @@ endpoints · responsive WebP images · minimum-two-tags rule with CI ·
 stale `TURBOTENANT_APPLY_URL_508_AVENUE_E` comment · `.dev.vars.example`
 documenting every variable for local `wrangler pages dev`.
 
+## 4a. Availability calendar — shipped
+
+A month-grid calendar now renders on both Tricou detail pages, drawn by
+`public/js/calendar.js` from the same `/api/availability` response that already
+feeds the one-line availability sentence. `main.js` publishes its per-slug fetch
+promises on `window.__staysAvailability` so the page hits the endpoint once, not
+twice.
+
+Deliberately a **display** calendar, not a booking engine. The stays carry a
+30-night floor because New Orleans restricts short-term rentals in residential
+areas (see `functions/_shared/stays.js`), so days are not selectable and the
+reservation still happens on Airbnb or VRBO. A Lodgify-style nightly checkout
+flow would misrepresent what is on offer.
+
+Behaviour worth knowing:
+
+- Hidden entirely when `/api/availability` returns `available: null` — no feed
+  configured, every feed unreachable, or not a stay listing. An all-open grid
+  built from missing data would be worse than no calendar.
+- Booked days are struck through as well as tinted, so the state does not rely
+  on colour alone.
+- Pages two months at a time up to a 12-month horizon, matching the API's
+  365-day cap on busy ranges.
+- `test/calendar.test.mjs` covers the date math: DTEND exclusivity, leap
+  February, month rollover, malformed-range rejection.
+
+**Still gated on the `STAYS_ICAL_*` variables** (section 3.2). Until those are
+set in Cloudflare Pages the calendar renders nothing at all — the code is live
+but invisible.
+
 ## 5. Furnished stays (Airbnb / VRBO) — shipped
 
 Both Tricou units are listed on VRBO and Airbnb for **30+ night stays** (New Orleans

@@ -191,6 +191,11 @@
           <h2>Furnished stays, 30 nights and up</h2>
           <p>While this home is between long-term tenants, it&rsquo;s available fully furnished for stays of <strong>30 nights or more</strong> &mdash; a fit for relocations, travel assignments, and temporary housing.</p>
           <p class="stays-availability" data-stays-availability hidden></p>
+          <!-- Month grid drawn by js/calendar.js from the same
+               /api/availability response. Stays hidden when no iCal feed is
+               configured or every feed is unreachable, so a visitor never sees
+               an all-open calendar built from missing data. -->
+          <div class="stays-calendar" data-stays-calendar hidden></div>
           <div class="stays-links">
             <a class="btn btn-outline btn-sm" href="https://www.vrbo.com/5063788" target="_blank" rel="noopener noreferrer">Book on VRBO</a>
             <a class="btn btn-outline btn-sm" href="https://www.airbnb.com/rooms/832710289760465793" target="_blank" rel="noopener noreferrer">Book on Airbnb</a>
@@ -269,5 +274,6 @@
 </footer>
 
 <script src="js/main.js"></script>
+<script type="module" src="js/calendar.js"></script>
 </body>
 </html>

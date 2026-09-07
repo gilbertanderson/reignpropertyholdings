@@ -164,6 +164,11 @@ document.addEventListener("DOMContentLoaded", function () {
   var stayBlocks = document.querySelectorAll("[data-stays]");
   var availabilityBySlug = {};
 
+  // js/calendar.js renders the month grid from the same endpoint. It is a
+  // module, so it runs after this classic script and can reuse these promises
+  // instead of fetching /api/availability a second time.
+  window.__staysAvailability = availabilityBySlug;
+
   var fetchAvailability = function (slug) {
     if (!availabilityBySlug[slug]) {
       availabilityBySlug[slug] = fetch(
