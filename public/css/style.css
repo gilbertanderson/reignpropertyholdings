@@ -1117,11 +1117,14 @@ p.listing-status-line,
 p.card-listing-status {
   font-weight: 600;
   color: var(--blue-700);
-  margin: 0 0 16px;
 }
 p.card-listing-status {
+  /* Exact match to .card-availability's spacing — this sits in the same
+     slot (address, then status line, then tags), so it needs the same
+     bottom margin, not the top margin left over from when it sat after
+     the tags instead. */
+  margin: 0 0 10px;
   font-size: 0.85rem;
-  margin: 10px 0 0;
 }
 
 .stays-links {
