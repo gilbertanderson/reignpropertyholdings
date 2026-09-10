@@ -121,6 +121,14 @@ a { color: inherit; text-decoration: none; }
   padding: 0 24px;
 }
 
+/* Phones get 16px gutters instead of 24px. On a 360px screen the wider pair
+   spends 48px — 13% of the viewport — before any content starts, and the
+   sidebar's email address is the one string on the site with no slack to give
+   up (see .sidebar-contact-item below). 16px is the standard mobile gutter. */
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+}
+
 /* ---------- Buttons ---------- */
 
 .btn {
@@ -871,10 +879,36 @@ section { padding: 72px 0; }
 }
 .sidebar-contact-item > div { min-width: 0; }
 .sidebar-contact-item strong { display: block; font-size: 0.95rem; overflow-wrap: break-word; }
-/* The full email address is the widest thing in the card; give it a slightly
-   smaller size so it stays on one line at every width, phones included. */
+/* admin@reignpropertyholdings.com is the widest unbreakable string on the
+   site, so the row is budgeted around it rather than the other way round.
+   At 0.88rem it needs ~238px in the fallback face the browser paints before
+   Inter arrives (font-display: swap) — measure against that face, not Inter,
+   since it is wider and it is what visitors see first.
+   Desktop is comfortable: the fixed 380px sidebar leaves ~278px for the text
+   after the card padding, icon and gap. Phones were not. Stacked, the card
+   spans the viewport minus the gutters, which left ~240px at 390px wide —
+   about 2px of slack — and less than the address needs at 375px and below,
+   so it wrapped mid-word. The media queries below buy that width back. */
 .sidebar-contact-item a[href^="mailto:"] { font-size: 0.88rem; }
 .sidebar-contact-item span { font-size: 0.82rem; color: var(--ink-500); }
+
+/* Phones: reclaim width for the email address from every element in the row.
+   With the 16px container gutters above, this gives ~16px of slack at 360px
+   (Galaxy/Pixel) and more at 375px and up, instead of the wrap reported on a
+   phone. Budget per side: gutter 16 · card 20 · icon 32 · gap 10. */
+@media (max-width: 480px) {
+  .sidebar-card { padding: 20px; }
+  .sidebar-contact-item { gap: 10px; }
+  .sidebar-contact-item .icon { width: 32px; height: 32px; }
+  .sidebar-contact-item a[href^="mailto:"] { font-size: 0.85rem; }
+}
+
+/* Below 360px there is no padding left to reclaim — the address only fits if
+   it gets smaller. Rare enough (iPhone SE 1st gen) to be worth the trade
+   against a mid-word wrap. */
+@media (max-width: 359px) {
+  .sidebar-contact-item a[href^="mailto:"] { font-size: 0.72rem; }
+}
 
 .sidebar-card .btn { margin-top: 18px; }
 
